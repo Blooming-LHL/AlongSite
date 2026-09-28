@@ -1,0 +1,4 @@
+name = "Along"
+license = "MIT"
+description = "A small self-hosted Hugo theme for a personal blog."
+min_version = "0.146.0"

@@ -1,0 +1,6 @@
+{{ define "main" }}
+<div class="container page-shell">
+  {{ partial "page-header.html" . }}
+  <div class="project-list">{{ range .RegularPages.ByWeight }}{{ partial "project-card.html" . }}{{ end }}</div>
+</div>
+{{ end }}

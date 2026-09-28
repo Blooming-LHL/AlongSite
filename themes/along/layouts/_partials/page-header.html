@@ -1,0 +1,5 @@
+<header class="page-header">
+  <p class="eyebrow">{{ with .Section }}{{ . | title }}{{ else }}Along{{ end }}</p>
+  <h1>{{ .Title }}</h1>
+  {{ with .Description }}<p class="lede">{{ . }}</p>{{ end }}
+</header>

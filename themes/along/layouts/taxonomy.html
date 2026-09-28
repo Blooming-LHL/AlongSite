@@ -1,0 +1,6 @@
+{{ define "main" }}
+<div class="container page-shell">
+  {{ partial "page-header.html" . }}
+  <div class="term-list">{{ range .Data.Terms.Alphabetical }}<a href="{{ .Page.RelPermalink }}"><span>{{ .Page.LinkTitle }}</span><small>{{ .Count }}</small></a>{{ end }}</div>
+</div>
+{{ end }}

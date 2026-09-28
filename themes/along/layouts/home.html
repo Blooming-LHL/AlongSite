@@ -1,0 +1,40 @@
+{{ define "main" }}
+<section class="hero container">
+  <p class="eyebrow">个人博客 · 技术与生活</p>
+  <h1>你好，我是{{ site.Params.author }}<span class="accent">。</span></h1>
+  <p class="hero-role">{{ site.Params.role }}</p>
+  <p class="hero-lede">{{ site.Params.introduction }}</p>
+  <div class="hero-actions">
+    <a class="button button-primary" href="{{ "about/" | relURL }}">认识我</a>
+    <a class="button" href="{{ "projects/" | relURL }}">查看项目</a>
+  </div>
+</section>
+
+{{ $projects := where site.RegularPages "Section" "projects" }}
+{{ $featuredProjects := where $projects "Params.featured" true }}
+<section class="home-section container" aria-labelledby="projects-heading">
+  <div class="section-heading"><div><p class="eyebrow">Selected work</p><h2 id="projects-heading">精选项目</h2></div><a class="text-link" href="{{ "projects/" | relURL }}">全部项目 ↗</a></div>
+  <div class="card-grid project-grid">{{ range first 4 $featuredProjects.ByWeight }}{{ partial "project-card.html" . }}{{ end }}</div>
+</section>
+
+{{ $writing := where site.RegularPages "Section" "writing" }}
+{{ $featuredWriting := where $writing "Params.featured" true }}
+<section class="home-section container" aria-labelledby="writing-heading">
+  <div class="section-heading"><div><p class="eyebrow">Featured writing</p><h2 id="writing-heading">精选文章</h2></div><a class="text-link" href="{{ "writing/" | relURL }}">全部 Writing ↗</a></div>
+  <div class="card-grid">{{ range first 5 $featuredWriting.ByDate.Reverse }}{{ partial "card.html" . }}{{ end }}</div>
+</section>
+
+{{ $reflections := where $writing "Params.categories" "intersect" (slice "随笔" "生活") }}
+<section class="home-section container" aria-labelledby="reflections-heading">
+  <div class="section-heading"><div><p class="eyebrow">Life & thoughts</p><h2 id="reflections-heading">生活与随笔</h2></div></div>
+  <div class="card-grid">{{ range first 3 $reflections.ByDate.Reverse }}{{ partial "card.html" . }}{{ end }}</div>
+</section>
+
+{{ with site.GetPage "/now" }}
+<section class="home-section home-now container" aria-labelledby="now-heading">
+  <div><p class="eyebrow">Currently</p><h2 id="now-heading">{{ .Title }}</h2></div>
+  <p>{{ .Description }}</p>
+  <a class="text-link" href="{{ .RelPermalink }}">了解更多 ↗</a>
+</section>
+{{ end }}
+{{ end }}

@@ -1,0 +1,21 @@
+{{ define "main" }}
+<article class="container article-shell">
+  <header class="article-header">
+    <p class="eyebrow">{{ with .Params.category }}{{ . }}{{ else }}{{ with .Params.categories }}{{ index . 0 }}{{ else }}{{ .Section | title }}{{ end }}{{ end }}</p>
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p class="article-description">{{ . }}</p>{{ end }}
+    {{ if not .Date.IsZero }}<p class="article-meta"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006 年 01 月 02 日" }}</time>{{ if eq .Section "writing" }} · {{ .ReadingTime }} 分钟阅读{{ end }}</p>{{ end }}
+  </header>
+
+  {{ if eq .Section "projects" }}
+  <aside class="project-facts" aria-label="项目摘要">
+    {{ with .Params.status }}<div><span>状态</span><strong>{{ . }}</strong></div>{{ end }}
+    {{ with .Params.stack }}<div><span>技术栈</span><ul class="stack-list">{{ range . }}<li>{{ . }}</li>{{ end }}</ul></div>{{ end }}
+    <div class="project-actions">{{ with .Params.github }}<a class="button" href="{{ . }}" rel="noopener noreferrer">GitHub ↗</a>{{ end }}{{ with .Params.demo }}<a class="button button-primary" href="{{ . }}" rel="noopener noreferrer">在线演示 ↗</a>{{ end }}</div>
+  </aside>
+  {{ end }}
+
+  <div class="article-content">{{ .Content }}</div>
+  {{ with .GetTerms "tags" }}<footer class="article-tags"><span>标签</span>{{ range . }}<a href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>{{ end }}</footer>{{ end }}
+</article>
+{{ end }}

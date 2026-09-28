@@ -1,0 +1,6 @@
+<article class="card">
+  <div class="card-meta"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>{{ with .Params.category }}<span>{{ . }}</span>{{ else }}{{ with .Params.categories }}<span>{{ index . 0 }}</span>{{ end }}{{ end }}</div>
+  <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+  <p>{{ .Description | default (.Summary | plainify | truncate 120) }}</p>
+  <a class="text-link" href="{{ .RelPermalink }}">阅读全文 <span aria-hidden="true">↗</span></a>
+</article>
