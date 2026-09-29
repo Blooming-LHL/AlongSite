@@ -65,6 +65,9 @@ menu:
     - name: "Now"
       pageRef: "/now"
       weight: 50
+    - name: "搜索"
+      pageRef: "/search"
+      weight: 60
 
 markup:
   goldmark:

@@ -1,0 +1,13 @@
+[build]
+  command = "npm ci && npm run build"
+  publish = "public"
+
+[build.environment]
+  HUGO_VERSION = "0.161.1"
+  NODE_VERSION = "22.17.0"
+  HUGO_ENV = "production"
+
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404

@@ -1,0 +1,34 @@
+{{ define "main" }}
+<article class="container page-shell search-shell" data-pagefind-ignore>
+  <header class="page-header">
+    <p class="eyebrow">Search</p>
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p class="lede">{{ . }}</p>{{ end }}
+  </header>
+  <div id="search" class="pagefind-ui" aria-label="站内搜索"></div>
+  <p id="search-status" class="search-status" role="status">正在加载搜索索引……</p>
+</article>
+<link rel="stylesheet" href="{{ "pagefind/pagefind-ui.css" | relURL }}">
+<script src="{{ "pagefind/pagefind-ui.js" | relURL }}"></script>
+<script>
+  (() => {
+    const status = document.querySelector("#search-status");
+    if (typeof PagefindUI !== "function") {
+      status.textContent = "本地搜索索引尚未生成，请运行 npm run preview:search 后访问终端显示的地址。";
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true,
+      translations: {
+        placeholder: "搜索文章和项目",
+        zero_results: "没有找到与 [SEARCH_TERM] 相关的内容",
+        one_result: "找到 1 条与 [SEARCH_TERM] 相关的内容",
+        many_results: "找到 [COUNT] 条与 [SEARCH_TERM] 相关的内容",
+        searching: "正在搜索 [SEARCH_TERM]……"
+      }
+    });
+    status.remove();
+  })();
+</script>
+{{ end }}

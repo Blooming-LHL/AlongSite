@@ -2,15 +2,24 @@
   "name": "along-site",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.17.0" },
+  "engines": {
+    "node": ">=22.17.0"
+  },
   "scripts": {
     "content:check": "node scripts/publish-content.mjs --check",
     "content:dry-run": "node scripts/publish-content.mjs --dry-run",
     "content:sync": "node scripts/publish-content.mjs --write",
     "dev": "hugo server --buildDrafts --disableFastRender",
-    "build:hugo": "hugo --gc --minify",
-    "build": "npm run build:hugo",
+    "build:hugo": "hugo --cleanDestinationDir --gc --minify",
+    "build:search": "pagefind --site public --force-language zh",
+    "preview:search": "npm run build:hugo && pagefind --site public --force-language zh --serve",
+    "build": "npm run build:hugo && npm run build:search",
     "test": "node --test"
   },
-  "dependencies": { "yaml": "2.9.1" }
+  "dependencies": {
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "pagefind": "1.5.2"
+  }
 }

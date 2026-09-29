@@ -1,6 +1,6 @@
 # Along · Hugo 个人博客 MVP
 
-这是个人博客技术方案 Phase 1/2 的 Hugo 源码：一个无外部前端依赖、资源自托管、响应式的轻量主题，并附带从 Obsidian `Blog` 快照发布公开文章的安全脚本。Pagefind 与 Netlify 属于后续阶段，尚未集成。
+这是个人博客技术方案 Phase 1/2/3 的 Hugo 源码：一个资源自托管、响应式的轻量主题，并附带从 Obsidian `Blog` 快照发布公开文章的安全脚本、Pagefind 搜索和 Netlify 部署配置。
 
 ## 快速开始
 
@@ -16,13 +16,21 @@ npm ci
 hugo server -D
 ```
 
-然后打开 Hugo 输出的本地地址。生成生产构建：
+然后打开 Hugo 输出的本地地址。生成包含 Pagefind 搜索索引的生产构建：
 
 ```bash
-hugo --gc --minify
+npm run build
 ```
 
 构建产物位于 `public/`，已被 `.gitignore` 排除。
+
+普通的 `npm run dev` 适合开发 Hugo 页面，但不会生成 Pagefind 索引。需要连同站内搜索一起预览时运行：
+
+```bash
+npm run preview:search
+```
+
+然后访问终端显示的本地地址。该命令会先构建 Hugo，再生成中文搜索索引并启动静态预览服务。
 
 ## 配置与替换
 
@@ -34,7 +42,27 @@ hugo --gc --minify
 
 ## 页面与边界
 
-已包含首页、Writing 分类层级（engineering / essays / life）、Projects、About、Now、404、RSS、Sitemap、robots.txt，以及 canonical、description、Open Graph 和 Twitter Card。
+已包含首页、Writing 分类层级（engineering / essays / life）、Projects、About、Now、Search、404、RSS、Sitemap、robots.txt，以及 canonical、description、Open Graph 和 Twitter Card。Pagefind 只在 `/search/` 页面按需加载，索引 Writing、Projects、About 和 Now 等公开内容详情页。
+
+## Pagefind 与 Netlify
+
+生产构建顺序固定为 Hugo → Pagefind：
+
+```bash
+npm ci
+npm run build
+```
+
+Hugo 会先清理并重新生成 `public/`，Pagefind 随后把中文索引写入 `public/pagefind/`。导航、页脚、首页、列表页、搜索页和 404 不进入索引，避免重复结果；搜索脚本与样式也不会进入首页首屏。
+
+仓库根目录的 `netlify.toml` 已配置构建命令、发布目录、Node/Hugo 固定版本和 404 fallback。连接 Netlify 时选择 GitHub 仓库和 `main` 生产分支即可；Pull Request 的 Deploy Preview 需在 Netlify 项目设置中启用。
+
+正式上线前还必须完成两项账户侧配置：
+
+1. 将 `hugo.yaml` 的 `baseURL: "https://example.com/"` 替换为唯一的正式主域名，否则 canonical、RSS、Sitemap 和分享卡片仍会指向占位域名。
+2. 在 Netlify 的 Domain management 中添加该域名并按提示配置 DNS；如同时使用裸域和 `www`，将非主域 301 重定向到主域。
+
+`public/` 和 `public/pagefind/` 都是构建产物，不应提交到 Git。
 
 ## 从 Obsidian 发布文章
 
