@@ -5,3 +5,6 @@
 .env
 .env.*
 node_modules/
+.content-sensitive-words
+.publish.lock
+Blog/Public/

@@ -4,7 +4,7 @@ description: "把零散阅读记录整理成可检索、可回顾的知识卡片
 created: 2026-09-20
 date: 2026-09-20
 category: "个人工具"
-publish: true
+public: true
 slug: "reading-notes-tool"
 categories: ["个人工具"]
 tags: ["知识管理"]

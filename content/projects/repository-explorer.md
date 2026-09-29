@@ -4,7 +4,7 @@ description: "帮助开发者快速理解陌生代码库结构的 AI 工具。"
 created: 2026-09-28
 date: 2026-09-28
 category: "开源项目"
-publish: true
+public: true
 slug: "repository-structure-explorer"
 categories: ["开源项目"]
 tags: ["Python", "AI"]

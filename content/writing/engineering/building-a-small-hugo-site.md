@@ -4,7 +4,7 @@ description: "记录如何用 Hugo、原生模板和自托管 CSS 搭建一个�
 created: 2026-09-28
 date: 2026-09-28
 category: "工程实践"
-publish: true
+public: true
 slug: "building-a-small-hugo-site"
 categories: ["工程实践"]
 tags: ["Hugo", "Web", "静态站点"]

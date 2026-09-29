@@ -4,7 +4,7 @@ description: "公开写作不等于展示全部生活，而是为经过整理的
 created: 2026-09-24
 date: 2026-09-24
 category: "随笔"
-publish: true
+public: true
 slug: "public-notebook"
 categories: ["随笔"]
 tags: ["写作", "思考"]

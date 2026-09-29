@@ -4,7 +4,7 @@ description: "用一个周末重新安排注意力：散步、阅读，以及不
 created: 2026-09-21
 date: 2026-09-21
 category: "生活"
-publish: true
+public: true
 slug: "quiet-weekend"
 categories: ["生活"]
 tags: ["生活记录"]
