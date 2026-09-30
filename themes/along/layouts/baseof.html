@@ -5,8 +5,15 @@
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要内容</a>
-    {{ partial "header.html" . }}
-    <main id="main-content" class="site-main">{{ block "main" . }}{{ end }}</main>
+    <div class="site-layout">
+      <aside class="site-sidebar site-sidebar-left" aria-label="个人导航" data-pagefind-ignore>
+        {{ partial "header.html" . }}
+      </aside>
+      <main id="main-content" class="site-main">{{ block "main" . }}{{ end }}</main>
+      <aside class="site-sidebar site-sidebar-right" aria-label="站点信息" data-pagefind-ignore>
+        {{ partial "right-sidebar.html" . }}
+      </aside>
+    </div>
     {{ partial "footer.html" . }}
   </body>
 </html>

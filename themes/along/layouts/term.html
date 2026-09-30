@@ -1,5 +1,5 @@
 {{ define "main" }}
-<div class="container page-shell">
+<div class="page-shell">
   {{ partial "page-header.html" . }}
   <div class="card-grid">{{ range .RegularPages.ByDate.Reverse }}{{ partial "card.html" . }}{{ end }}</div>
 </div>

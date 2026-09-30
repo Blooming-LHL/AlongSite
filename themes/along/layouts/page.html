@@ -1,5 +1,5 @@
 {{ define "main" }}
-<article class="container article-shell" data-pagefind-body>
+<article class="article-shell" data-pagefind-body>
   <header class="article-header">
     <p class="eyebrow">{{ with .Params.category }}{{ . }}{{ else }}{{ with .Params.categories }}{{ index . 0 }}{{ else }}{{ .Section | title }}{{ end }}{{ end }}</p>
     <h1>{{ .Title }}</h1>

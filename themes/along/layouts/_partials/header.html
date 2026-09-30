@@ -1,10 +1,14 @@
-<header class="site-header" data-pagefind-ignore>
-  <div class="container header-inner">
-    <a class="brand" href="{{ "" | relURL }}" aria-label="返回首页">{{ site.Params.brand }}<span aria-hidden="true">。</span></a>
-    <nav aria-label="主导航">
-      <ul class="nav-list">
-        {{ range site.Menus.main }}<li><a href="{{ .URL | relURL }}"{{ if $.IsMenuCurrent "main" . }} aria-current="page"{{ end }}>{{ .Name }}</a></li>{{ end }}
-      </ul>
-    </nav>
+<header class="site-header">
+  <a class="brand" href="{{ "" | relURL }}" aria-label="返回首页">{{ site.Params.brand }}<span aria-hidden="true">。</span></a>
+  <p class="sidebar-role">{{ site.Params.role }}</p>
+  <p class="sidebar-introduction">{{ site.Params.introduction }}</p>
+  <nav aria-label="主导航">
+    <ul class="nav-list">
+      {{ range site.Menus.main }}<li><a href="{{ .URL | relURL }}"{{ if $.IsMenuCurrent "main" . }} aria-current="page"{{ end }}><span aria-hidden="true">↳</span>{{ .Name }}</a></li>{{ end }}
+    </ul>
+  </nav>
+  <div class="sidebar-links">
+    {{ with site.Params.github }}<a href="{{ . }}" rel="noopener noreferrer">GitHub ↗</a>{{ end }}
+    {{ with site.Params.email }}<a href="mailto:{{ . }}">Email ↗</a>{{ end }}
   </div>
 </header>

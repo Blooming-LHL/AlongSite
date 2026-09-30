@@ -1,0 +1,41 @@
+<div class="right-sidebar-inner">
+  <a class="search-shortcut" href="{{ "search/" | relURL }}">
+    <span aria-hidden="true">⌕</span><span>搜索文章</span><span class="search-shortcut-arrow" aria-hidden="true">↗</span>
+  </a>
+
+  {{ $writing := where site.RegularPages "Section" "writing" }}
+  <section class="sidebar-section" aria-labelledby="recent-heading">
+    <p class="sidebar-label" id="recent-heading">最近更新</p>
+    <ul class="recent-list">
+      {{ range first 5 ($writing.ByDate.Reverse) }}
+      <li><a href="{{ .RelPermalink }}"><span>{{ .Title }}</span><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "01.02" }}</time></a></li>
+      {{ end }}
+    </ul>
+  </section>
+
+  {{ with site.Taxonomies.categories }}
+  <section class="sidebar-section" aria-labelledby="category-heading">
+    <p class="sidebar-label" id="category-heading">分类</p>
+    <div class="sidebar-tags">
+      {{ range first 8 .Alphabetical }}<a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }} <small>{{ .Count }}</small></a>{{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  {{ with site.Taxonomies.tags }}
+  <section class="sidebar-section" aria-labelledby="tag-heading">
+    <p class="sidebar-label" id="tag-heading">标签</p>
+    <div class="sidebar-tags">
+      {{ range first 10 .Alphabetical }}<a href="{{ .Page.RelPermalink }}">#{{ .Page.LinkTitle }}</a>{{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  {{ with site.GetPage "/now" }}
+  <section class="sidebar-now">
+    <p class="sidebar-label">现在</p>
+    <p>{{ .Description }}</p>
+    <a class="text-link" href="{{ .RelPermalink }}">正在发生 ↗</a>
+  </section>
+  {{ end }}
+</div>
