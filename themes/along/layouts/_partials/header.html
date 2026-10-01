@@ -1,7 +1,12 @@
 <header class="site-header">
-  <a class="brand" href="{{ "" | relURL }}" aria-label="返回首页">{{ site.Params.brand }}<span aria-hidden="true">。</span></a>
-  <p class="sidebar-role">{{ site.Params.role }}</p>
-  <p class="sidebar-introduction">{{ site.Params.introduction }}</p>
+  <a class="profile-link" href="{{ "" | relURL }}" aria-label="{{ site.Params.author }}{{ with site.Params.status.text }}，当前状态：{{ . }}{{ end }} · 返回首页">
+    <span class="profile-avatar-wrap">
+      <img class="profile-avatar" src="{{ site.Params.avatar | relURL }}" alt="" width="96" height="96">
+      {{ with site.Params.status }}<span class="profile-status" data-status="{{ .text }}" aria-hidden="true">{{ .emoji }}</span>{{ end }}
+    </span>
+    <span class="profile-name">{{ site.Params.author }}<span class="accent">。</span></span>
+  </a>
+  <p class="profile-signature">{{ site.Params.signature | default site.Params.role }}</p>
   <nav aria-label="主导航">
     <ul class="nav-list">
       {{ range site.Menus.main }}<li><a href="{{ .URL | relURL }}"{{ if $.IsMenuCurrent "main" . }} aria-current="page"{{ end }}><span aria-hidden="true">↳</span>{{ .Name }}</a></li>{{ end }}

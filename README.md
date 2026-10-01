@@ -34,8 +34,11 @@ npm run preview:search
 
 ## 配置与替换
 
+- 首页顶部展示“今日灵感”：浏览器按本地日期从[一言语句接口](https://developer.hitokoto.cn/sentence/)获取一句话，成功后缓存在本机至次日；接口不可用、禁用 JavaScript 或离线时显示仓库内的静态寄语。页面只用 `textContent` 插入接口文本，不把外部内容当 HTML 执行。
+- 全站采用彩色光晕背景和半透明玻璃卡片；配色与模糊程度集中在 `static/css/main.css` 的设计变量及 `.hero`、`.card` 等样式中。
 - 站点标题、规范域名、RSS/Sitemap、菜单和 SEO 参数在 `hugo.yaml`。
-- `params.author`、`params.email`、`params.github`、`params.resume` 和 `params.defaultImage` 是集中配置的明显占位值，请发布前替换。
+- 左侧个人资料的姓名、头像和个性签名分别由 `params.author`、`params.avatar`、`params.signature` 配置；默认 `static/images/avatar.svg` 是字形占位头像，替换为自己的照片后同步更新 `params.avatar`。头像角上的状态标志由 `params.status.emoji` 和 `params.status.text` 控制，例如 `😊 / 开心`、`😢 / 难过`、`🏖️ / 休假中`、`🧋 / 喝奶茶中`；改动配置并重新部署即可让所有访客看到新状态。
+- `params.email`、`params.github`、`params.resume` 和 `params.defaultImage` 请在发布前检查并替换为真实公开信息。
 - 首页布局在 `themes/along/layouts/home.html`；通用元信息在 `themes/along/layouts/_partials/head.html`。
 - 文章放在 `content/writing/`，项目放在 `content/projects/`。每篇文章建议提供 `title`、`description`、`date`、`categories` 和 `tags`。
 - 当前 3 篇文章和 2 个项目都明确标注为示例内容，请用真实资料替换或删除。

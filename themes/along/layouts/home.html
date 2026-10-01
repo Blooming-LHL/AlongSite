@@ -1,13 +1,15 @@
 {{ define "main" }}
-<section class="hero">
-  <p class="eyebrow">个人博客 · 技术与生活</p>
-  <h1>你好，我是{{ site.Params.author }}<span class="accent">。</span></h1>
-  <p class="hero-lede">{{ site.Params.introduction }}</p>
-  <div class="hero-actions">
-    <a class="button button-primary" href="{{ "about/" | relURL }}">认识我</a>
-    <a class="button" href="{{ "projects/" | relURL }}">查看项目</a>
+<section class="hero" aria-labelledby="daily-note-heading">
+  <div class="hero-content">
+    <div class="hero-topline"><span class="hero-sparkle" aria-hidden="true">✦</span><p id="daily-note-heading" class="hero-kicker">今日灵感</p><time id="daily-note-date" class="hero-date"></time></div>
+    <blockquote class="hero-quote" id="daily-note-quote">把好奇留给今天，让灵感自然发生。</blockquote>
+    <div class="hero-bottomline">
+      <a id="daily-note-source" class="hero-source" href="{{ "writing/" | relURL }}" data-fallback-href="{{ "writing/" | relURL }}">ALong 的一句话 ↗</a>
+      <a class="hero-explore" href="{{ "writing/" | relURL }}">翻阅文章 <span aria-hidden="true">↗</span></a>
+    </div>
   </div>
 </section>
+<script type="module" src="{{ "js/daily-note.js" | relURL }}"></script>
 
 {{ $projects := where site.RegularPages "Section" "projects" }}
 {{ $featuredProjects := where $projects "Params.featured" true }}

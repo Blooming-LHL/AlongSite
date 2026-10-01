@@ -35,3 +35,17 @@ test('Netlify uses reproducible Hugo and Node versions', async () => {
   assert.match(netlify, /HUGO_VERSION = "0\.161\.1"/);
   assert.match(netlify, /NODE_VERSION = "22\.17\.0"/);
 });
+
+test('sidebar status is configurable and navigation has mouse and keyboard glass states', async () => {
+  const config = await read('hugo.yaml');
+  const header = await read('themes/along/layouts/_partials/header.html');
+  const css = await read('static/css/main.css');
+  assert.match(config, /status:\s*\n\s*emoji:/);
+  assert.match(header, /site\.Params\.status/);
+  assert.match(header, /profile-status/);
+  assert.match(css, /\.profile-status \{[^}]*width: 46px; height: 46px;[^}]*border-radius: 50%/);
+  assert.match(css, /\.nav-list a\[aria-current="page"\] \{[^}]*background: linear-gradient[^}]*box-shadow:/);
+  assert.match(css, /\.nav-list a:is\(:hover, :focus-visible\)/);
+  assert.match(css, /\.nav-list:has\(a:is\(:hover, :focus-visible\)\)/);
+  assert.match(css, /backdrop-filter: blur\(24px\)/);
+});
