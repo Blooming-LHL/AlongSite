@@ -1,6 +1,6 @@
 {{ define "main" }}
 <div class="page-shell">
   {{ partial "page-header.html" . }}
-  <div class="project-list">{{ range .RegularPages.ByWeight }}{{ partial "project-card.html" . }}{{ end }}</div>
+  {{ with .RegularPages.ByWeight }}<div class="project-list">{{ range . }}{{ partial "project-card.html" . }}{{ end }}</div>{{ else }}<p class="empty-copy">这里还没有项目。</p>{{ end }}
 </div>
 {{ end }}

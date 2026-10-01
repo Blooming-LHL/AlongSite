@@ -12,24 +12,33 @@
 <script type="module" src="{{ "js/daily-note.js" | relURL }}"></script>
 
 {{ $projects := where site.RegularPages "Section" "projects" }}
-{{ $featuredProjects := where $projects "Params.featured" true }}
+{{ with $projects }}
+{{ $featuredProjects := where . "Params.featured" true }}
+{{ if not $featuredProjects }}{{ $featuredProjects = . }}{{ end }}
 <section class="home-section" aria-labelledby="projects-heading">
   <div class="section-heading"><div><p class="eyebrow">Selected work</p><h2 id="projects-heading">精选项目</h2></div><a class="text-link" href="{{ "projects/" | relURL }}">全部项目 ↗</a></div>
   <div class="card-grid project-grid">{{ range first 4 $featuredProjects.ByWeight }}{{ partial "project-card.html" . }}{{ end }}</div>
 </section>
+{{ end }}
 
 {{ $writing := where site.RegularPages "Section" "writing" }}
+{{ with $writing }}
 {{ $featuredWriting := where $writing "Params.featured" true }}
+{{ $writingHeading := "精选文章" }}
+{{ if not $featuredWriting }}{{ $featuredWriting = . }}{{ $writingHeading = "最近文章" }}{{ end }}
 <section class="home-section" aria-labelledby="writing-heading">
-  <div class="section-heading"><div><p class="eyebrow">Featured writing</p><h2 id="writing-heading">精选文章</h2></div><a class="text-link" href="{{ "writing/" | relURL }}">全部 Writing ↗</a></div>
+  <div class="section-heading"><div><p class="eyebrow">Writing</p><h2 id="writing-heading">{{ $writingHeading }}</h2></div><a class="text-link" href="{{ "writing/" | relURL }}">全部 Writing ↗</a></div>
   <div class="card-grid">{{ range first 5 $featuredWriting.ByDate.Reverse }}{{ partial "card.html" . }}{{ end }}</div>
 </section>
+{{ end }}
 
 {{ $reflections := where $writing "Params.categories" "intersect" (slice "随笔" "生活") }}
+{{ with $reflections }}
 <section class="home-section" aria-labelledby="reflections-heading">
   <div class="section-heading"><div><p class="eyebrow">Life & thoughts</p><h2 id="reflections-heading">生活与随笔</h2></div></div>
-  <div class="card-grid">{{ range first 3 $reflections.ByDate.Reverse }}{{ partial "card.html" . }}{{ end }}</div>
+  <div class="card-grid">{{ range first 3 .ByDate.Reverse }}{{ partial "card.html" . }}{{ end }}</div>
 </section>
+{{ end }}
 
 {{ with site.GetPage "/now" }}
 <section class="home-section home-now" aria-labelledby="now-heading">

@@ -1,4 +1,4 @@
-baseURL: "https://example.com/"
+baseURL: "https://alongsite.netlify.app"
 defaultContentLanguage: "zh"
 languages:
   zh:
@@ -38,7 +38,7 @@ sitemap:
 
 params:
   author: "ALong"
-  avatar: "/images/avatar.svg"
+  avatar: "/images/IMG_5943.JPG"
   signature: "持续发疯ing"
   status:
     emoji: "🧋"

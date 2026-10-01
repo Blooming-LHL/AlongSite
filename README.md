@@ -41,7 +41,31 @@ npm run preview:search
 - `params.email`、`params.github`、`params.resume` 和 `params.defaultImage` 请在发布前检查并替换为真实公开信息。
 - 首页布局在 `themes/along/layouts/home.html`；通用元信息在 `themes/along/layouts/_partials/head.html`。
 - 文章放在 `content/writing/`，项目放在 `content/projects/`。每篇文章建议提供 `title`、`description`、`date`、`categories` 和 `tags`。
-- 当前 3 篇文章和 2 个项目都明确标注为示例内容，请用真实资料替换或删除。
+- 示例文章和项目已清理；新的公开文章由 `content:sync` 写入 `content/writing/`，项目可按需添加到 `content/projects/`。
+
+### 添加项目
+
+在 `content/projects/` 新建 Markdown 文件，例如 `content/projects/my-project.md`：
+
+```markdown
+---
+title: "我的项目"
+description: "一句话介绍项目解决了什么问题。"
+date: 2026-10-01
+category: "个人项目"
+status: "进行中"
+stack: ["Python", "Hugo"]
+github: "https://github.com/你的用户名/项目名"
+featured: true
+weight: 10
+---
+
+这里写项目背景、功能和进展。
+```
+
+保存后项目会出现在 Projects 页面；首页有项目时会自动显示“精选项目”。`featured: true` 表示优先展示在首页，`weight` 数字越小越靠前；如果没有项目标记为精选，首页会展示前 4 个项目。可运行 `npm run dev` 本地预览。
+
+项目直接由网站仓库发布，不走 Obsidian 的 `content:sync` 流程；放进 `content/projects/` 就会公开，`public: false` 不能用来隐藏项目。
 
 ## 页面与边界
 
@@ -71,6 +95,8 @@ Hugo 会先清理并重新生成 `public/`，Pagefind 随后把中文索引写�
 
 Phase 2 工具只接受 YAML 布尔值 `public: true`。旧字段 `publish` 不会触发发布。`OBSIDIAN_VAULT_PATH` 可以指向知识库根目录，也可以直接指向 `Blog` 目录；工具会递归扫描最终解析出的 `Blog`，并硬编码排除 `Blog/Public`。
 
+新笔记可以不手写 front matter。先运行 `content:frontmatter`，它只为 `Blog` 内完全没有 YAML front matter 的 Markdown 笔记补齐 `title`、`description`、`created`、`category` 和 `public: false`，并写回私人知识库；已有 front matter 不会被覆盖。检查生成结果后，只有你手动将某篇的 `public` 改为 YAML 布尔值 `true`，它才会进入公开发布流程。该命令不会写入网站的公开文章、图片或 manifest。
+
 - 校验 `title`、`description`、`created`、`category`、`public`，保留其他未知字段；
 - 将 `created` 映射为 Hugo 的 `date`；
 - 将播客等类型字段中的外部 `url` 安全映射为 `source_url`，避免覆盖 Hugo 页面路由；
@@ -83,6 +109,7 @@ macOS / Linux：
 
 ```bash
 export OBSIDIAN_VAULT_PATH=/Users/lhl/Blog
+npm run content:frontmatter # 给缺少 front matter 的私人笔记补齐元数据（会写回 Blog）
 npm run content:check      # 只校验，不写文件
 npm run content:dry-run    # 展示新增/更新/删除/跳过/警告
 npm run content:sync       # 校验通过后写入快照、Hugo 内容和 manifest
@@ -92,6 +119,7 @@ Windows PowerShell：
 
 ```powershell
 $env:OBSIDIAN_VAULT_PATH="D:\path\to\HengLongWiki\Blog"
+npm run content:frontmatter
 npm run content:check
 npm run content:dry-run
 npm run content:sync
@@ -103,9 +131,9 @@ npm run content:sync
 
 ### 安全边界
 
-- `--check` 和 `--dry-run` 不写任何文件；任意文章失败时不会产生部分发布结果。
+- `content:frontmatter` 只修改缺少 front matter 的私人源笔记，不会自动公开；`--check` 和 `--dry-run` 仍不写任何文件，任意文章失败时不会产生部分发布结果。
 - 写入前先生成临时 staging；提交阶段只备份和替换 manifest 登记的文件，失败会回滚。
-- `--write` 使用 `.publish.lock` 防止并发发布；若进程被强制终止，请确认没有发布任务运行后再删除残留锁文件。
+- `content:frontmatter` 与 `--write` 共用 `.publish.lock`，防止同时修改笔记和发布；若进程被强制终止，请确认没有任务运行后再删除残留锁文件。
 - 未登记的 `content/writing` 文件、栏目 `_index.md`、Projects、About 和 Now 不会被删除；目标路径冲突会整体失败。
 - 如果手工修改了 manifest 已登记的生成文件，后续同步会拒绝覆盖或删除；应把修改同步回 Obsidian 原文后再发布。
 - `Blog/Public` 是全生成快照：首次运行时必须为空，后续不得混入 manifest 未登记的文件。
@@ -115,6 +143,7 @@ npm run content:sync
 日常发布流程：
 
 ```bash
+npm run content:frontmatter
 npm run content:check
 npm run content:dry-run
 npm run content:sync
@@ -136,6 +165,6 @@ hugo.yaml          # Hugo 配置
 ## 发布前检查
 
 1. 把 `hugo.yaml` 中的 `baseURL`、作者、邮箱、GitHub 和简历地址替换为真实公开信息。
-2. 替换或删除 3 篇示例文章与 2 个示例项目；它们都在正文首行标明了示例身份。
+2. 检查 `content/writing/` 和 `content/projects/`，确认只包含你准备公开的真实内容。
 3. 将 `static/images/og-default.svg` 换成自己的 1200×630 PNG/JPEG 分享图（兼容更多社交平台），同步修改 `params.defaultImage`，并检查图片中不含隐私信息。
 4. 执行 `npm test && npm run build`，确认发布安全用例和 Hugo 构建均通过。

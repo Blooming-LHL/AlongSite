@@ -9,6 +9,7 @@ import { isRealDate, validateManifestPath } from '../scripts/validate-content.mj
 
 const exec = promisify(execFile);
 const script = path.resolve('scripts/publish-content.mjs');
+const frontmatterScript = path.resolve('scripts/frontmatter-defaults.mjs');
 
 async function workspace() {
   const base = await fs.mkdtemp(path.join(os.tmpdir(), 'along-phase2-'));
@@ -50,6 +51,84 @@ async function fail(ctx, mode = '--dry-run', extraEnv = {}) {
     return error.stdout;
   }
 }
+
+async function runFrontmatter(ctx, extraEnv = {}) {
+  const env = { ...process.env, OBSIDIAN_VAULT_PATH: ctx.vault, ...extraEnv };
+  return exec(process.execPath, [frontmatterScript, '--frontmatter'], { cwd: ctx.repo, env });
+}
+
+test('frontmatter mode fills only missing metadata, preserves bodies, and is idempotent', async () => {
+  const ctx = await workspace();
+  const raw = path.join(ctx.blog, '中文', '子目录', '新笔记.md');
+  await fs.mkdir(path.dirname(raw), { recursive: true });
+  const body = '# Heading\n\nA **prose** excerpt.\n';
+  await fs.writeFile(raw, body);
+  const existing = await note(ctx.blog, 'existing.md', validFront({ publicValue: 'false' }), 'already managed');
+  const publicSnapshot = path.join(ctx.blog, 'Public', 'snapshot.md');
+  await fs.mkdir(path.dirname(publicSnapshot), { recursive: true });
+  await fs.writeFile(publicSnapshot, 'snapshot must stay untouched');
+
+  const first = await runFrontmatter(ctx);
+  assert.match(first.stdout, /generated: 1/);
+  const generated = await fs.readFile(raw, 'utf8');
+  assert.match(generated, /title: 新笔记/);
+  assert.match(generated, /category: 子目录/);
+  assert.match(generated, /public: false/);
+  assert.match(generated, /description: A prose excerpt\./);
+  assert.equal(generated.slice(generated.indexOf('---\n', 4) + 4), body);
+  assert.equal(await fs.readFile(existing, 'utf8'), `---\n${validFront({ publicValue: 'false' })}\n---\nalready managed`);
+  assert.equal(await fs.readFile(publicSnapshot, 'utf8'), 'snapshot must stay untouched');
+  assert.equal(await fs.readFile(path.join(ctx.repo, 'content', 'writing', '_index.md'), 'utf8'), 'writing-index');
+  assert.equal(await fs.stat(path.join(ctx.repo, '.publish-manifest.json')).then(() => true, () => false), false);
+  const second = await runFrontmatter(ctx);
+  assert.match(second.stdout, /generated: 0/);
+  assert.match(second.stdout, /skipped: 2/);
+});
+
+test('frontmatter mode skips symlinks and rolls back an injected mid-commit failure', async () => {
+  const ctx = await workspace();
+  const first = path.join(ctx.blog, 'one.md');
+  const second = path.join(ctx.blog, 'two.md');
+  await fs.writeFile(first, 'one');
+  await fs.writeFile(second, 'two');
+  const outside = path.join(ctx.base, 'outside.txt');
+  await fs.writeFile(outside, 'outside');
+  await fs.symlink(outside, path.join(ctx.blog, 'asset.txt'));
+
+  await assert.rejects(runFrontmatter(ctx, { NODE_ENV: 'test', ALONG_FRONTMATTER_TEST_FAIL_AFTER: '1' }));
+  assert.equal(await fs.readFile(first, 'utf8'), 'one');
+  assert.equal(await fs.readFile(second, 'utf8'), 'two');
+  assert.equal(await fs.readFile(outside, 'utf8'), 'outside');
+});
+
+test('frontmatter mode retains a recovery backup when rollback itself fails', async () => {
+  const ctx = await workspace();
+  const first = path.join(ctx.blog, 'one.md');
+  const second = path.join(ctx.blog, 'two.md');
+  await fs.writeFile(first, 'one');
+  await fs.writeFile(second, 'two');
+  try {
+    await runFrontmatter(ctx, {
+      NODE_ENV: 'test',
+      ALONG_FRONTMATTER_TEST_FAIL_AFTER: '1',
+      ALONG_FRONTMATTER_TEST_FAIL_ROLLBACK: '1',
+    });
+    assert.fail('frontmatter unexpectedly succeeded');
+  } catch (error) {
+    assert.match(error.stdout, /backup retained at .*along-frontmatter-backup-/);
+    assert.match(await fs.readFile(second, 'utf8'), /^two$/);
+    assert.match(await fs.readFile(first, 'utf8'), /^---\n/);
+  }
+});
+
+test('frontmatter mode recognizes BOM-prefixed existing front matter', async () => {
+  const ctx = await workspace();
+  const file = path.join(ctx.blog, 'bom.md');
+  const original = '\uFEFF---\ntitle: Existing\n---\nbody';
+  await fs.writeFile(file, original);
+  await runFrontmatter(ctx);
+  assert.equal(await fs.readFile(file, 'utf8'), original);
+});
 
 test('publishes nested notes, links and attachments while check/dry-run remain read-only', async () => {
   const ctx = await workspace();
