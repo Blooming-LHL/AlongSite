@@ -93,7 +93,7 @@ Hugo 会先清理并重新生成 `public/`，Pagefind 随后把中文索引写�
 
 ## 从 Obsidian 发布文章
 
-Phase 2 工具只接受 YAML 布尔值 `public: true`。旧字段 `publish` 不会触发发布。`OBSIDIAN_VAULT_PATH` 可以指向知识库根目录，也可以直接指向 `Blog` 目录；工具会递归扫描最终解析出的 `Blog`，并硬编码排除 `Blog/Public`。
+Phase 2 工具只接受 YAML 布尔值 `public: true`。旧字段 `publish` 不会触发发布。知识库路径默认按当前设备名从仓库根目录的 `vault-paths.json` 选择：MacBook 使用 `/Users/lhl/Blog`，`ALong-PC` 使用 `D:\Administrator\Documents\Blog`，无需每次设置环境变量。设备名匹配不区分大小写，Mac 的 `.local` 后缀可省略。换新设备时，先运行 `hostname`，把设备名和该机的 Blog 绝对路径加入配置；未配置的设备会报错，不会猜测路径。`OBSIDIAN_VAULT_PATH` 始终可以临时覆盖默认值，指向知识库根目录或直接指向 `Blog` 目录；工具会递归扫描最终解析出的 `Blog`，并硬编码排除 `Blog/Public`。
 
 新笔记可以不手写 front matter。先运行 `content:frontmatter`，它只为 `Blog` 内完全没有 YAML front matter 的 Markdown 笔记补齐 `title`、`description`、`created`、`category` 和 `public: false`，并写回私人知识库；已有 front matter 不会被覆盖。检查生成结果后，只有你手动将某篇的 `public` 改为 YAML 布尔值 `true`，它才会进入公开发布流程。该命令不会写入网站的公开文章、图片或 manifest。
 
@@ -108,22 +108,24 @@ Phase 2 工具只接受 YAML 布尔值 `public: true`。旧字段 `publish` 不�
 macOS / Linux：
 
 ```bash
-export OBSIDIAN_VAULT_PATH=/Users/lhl/Blog
 npm run content:frontmatter # 给缺少 front matter 的私人笔记补齐元数据（会写回 Blog）
 npm run content:check      # 只校验，不写文件
 npm run content:dry-run    # 展示新增/更新/删除/跳过/警告
 npm run content:sync       # 校验通过后写入快照、Hugo 内容和 manifest
 ```
 
-Windows PowerShell：
+知识库不在默认位置时，先运行 `export OBSIDIAN_VAULT_PATH=/你的/Blog/路径`，或在单次命令前写 `OBSIDIAN_VAULT_PATH=/你的/Blog/路径 npm run content:check`。
+
+Windows PowerShell（已配置 `ALong-PC`）：
 
 ```powershell
-$env:OBSIDIAN_VAULT_PATH="D:\path\to\HengLongWiki\Blog"
 npm run content:frontmatter
 npm run content:check
 npm run content:dry-run
 npm run content:sync
 ```
+
+在 Windows 上临时切换知识库，可先运行 `$env:OBSIDIAN_VAULT_PATH="D:\其他路径\Blog"`。新设备的路径写入 `vault-paths.json` 时，JSON 中的反斜杠要写成 `\\`。
 
 可选地将敏感词逐行写入本仓库的 `.content-sensitive-words`，或通过 `CONTENT_SENSITIVE_WORDS_PATH` 指向其他本地文件；空行和以 `#` 开头的注释会被忽略。敏感词文件不会提交。
 

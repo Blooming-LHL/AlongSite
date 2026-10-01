@@ -6,6 +6,7 @@ import path from 'node:path';
 import process from 'node:process';
 import YAML from 'yaml';
 import { transformMarkdown } from './transform-obsidian.mjs';
+import { resolveVaultPath } from './resolve-vault-path.mjs';
 import {
   createAttachmentResolver,
   dateText,
@@ -27,7 +28,6 @@ if (args.length !== 1 || !MODES.has(args[0])) {
 
 const mode = args[0];
 const root = await fs.realpath(process.cwd());
-const vault = process.env.OBSIDIAN_VAULT_PATH ? path.resolve(process.env.OBSIDIAN_VAULT_PATH) : null;
 const report = { added: [], updated: [], unchanged: [], deleted: [], skipped: [], warnings: [], failures: [] };
 
 let releaseLock = async () => {};
@@ -44,7 +44,7 @@ try {
 }
 
 async function run() {
-  if (!vault) throw new Error('OBSIDIAN_VAULT_PATH is required');
+  const vault = await resolveVaultPath();
   const blog = await resolveBlogDirectory(vault);
 
   const roots = {

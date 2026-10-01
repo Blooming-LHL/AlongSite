@@ -6,6 +6,7 @@ import path from 'node:path';
 import process from 'node:process';
 import YAML from 'yaml';
 import { toPosix } from './validate-content.mjs';
+import { resolveVaultPath } from './resolve-vault-path.mjs';
 
 if (process.argv.length !== 3 || process.argv[2] !== '--frontmatter') {
   console.error('Usage: node scripts/frontmatter-defaults.mjs --frontmatter');
@@ -15,9 +16,7 @@ if (process.argv.length !== 3 || process.argv[2] !== '--frontmatter') {
 const report = { generated: [], unchanged: [], skipped: [], failures: [] };
 let releaseLock = async () => {};
 try {
-  const configured = process.env.OBSIDIAN_VAULT_PATH;
-  if (!configured) throw new Error('OBSIDIAN_VAULT_PATH is required');
-  const blog = await resolveBlogDirectory(configured);
+  const blog = await resolveBlogDirectory(await resolveVaultPath());
   releaseLock = await acquireLock(path.join(process.cwd(), '.publish.lock'));
   const notes = await scanNotes(blog);
   const changes = [];
