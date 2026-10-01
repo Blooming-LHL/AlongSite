@@ -2,11 +2,43 @@
   "schemaVersion": 1,
   "articles": [
     {
+      "source": "Blog/心理学/何谓 Paltering？.md",
+      "public": "Blog/Public/心理学/何谓 Paltering？.md",
+      "hugo": "content/writing/心理学/何谓 Paltering？.md",
+      "url": "/writing/心理学/何谓-paltering/",
+      "hash": "9f3a8c1d0433b4d1e647f121dea1c14bb4fece6cfdb707d692256316e7ff7330",
+      "attachments": []
+    },
+    {
       "source": "Blog/阅读&看剧&听播客/播客/《微信张小龙：没有产品，只有人性》听听思考.md",
       "public": "Blog/Public/阅读&看剧&听播客/播客/《微信张小龙：没有产品，只有人性》听听思考.md",
       "hugo": "content/writing/阅读&看剧&听播客/播客/《微信张小龙：没有产品，只有人性》听听思考.md",
       "url": "/writing/阅读&看剧&听播客/微信张小龙-没有产品-只有人性-听听思考/",
       "hash": "46b8ed74ca478e9b2b18b8664986de1edd164140a293d6f815cbda0c7610d90e",
+      "attachments": []
+    },
+    {
+      "source": "Blog/阅读&看剧&听播客/看剧/《心跳漏一拍》全系列看剧有感.md",
+      "public": "Blog/Public/阅读&看剧&听播客/看剧/《心跳漏一拍》全系列看剧有感.md",
+      "hugo": "content/writing/阅读&看剧&听播客/看剧/《心跳漏一拍》全系列看剧有感.md",
+      "url": "/writing/阅读&看剧&听播客/心跳漏一拍-全系列看剧有感/",
+      "hash": "8d6377642d905771f24ca0f00140001b5f03c7989ef312c807e92293bb38c259",
+      "attachments": []
+    },
+    {
+      "source": "Blog/阅读&看剧&听播客/阅读/《被讨厌的勇气》阅读记录.md",
+      "public": "Blog/Public/阅读&看剧&听播客/阅读/《被讨厌的勇气》阅读记录.md",
+      "hugo": "content/writing/阅读&看剧&听播客/阅读/《被讨厌的勇气》阅读记录.md",
+      "url": "/writing/阅读&看剧&听播客/被讨厌的勇气-阅读记录/",
+      "hash": "b07f6706ac1ef7b02ce21df33ee1445969ced9583ee2e9e009c8407608f56e13",
+      "attachments": []
+    },
+    {
+      "source": "Blog/阅读&看剧&听播客/阅读/《置身钉内》阅读记录.md",
+      "public": "Blog/Public/阅读&看剧&听播客/阅读/《置身钉内》阅读记录.md",
+      "hugo": "content/writing/阅读&看剧&听播客/阅读/《置身钉内》阅读记录.md",
+      "url": "/writing/阅读&看剧&听播客/置身钉内-阅读记录/",
+      "hash": "32e04a8e0915d7cbba3761d00fd52af237829ec61c5d3a25e5ff46293c619a17",
       "attachments": []
     }
   ]
