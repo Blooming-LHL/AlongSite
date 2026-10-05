@@ -95,10 +95,12 @@ Hugo 会先清理并重新生成 `public/`，Pagefind 随后把中文索引写�
 
 Phase 2 工具只接受 YAML 布尔值 `public: true`。旧字段 `publish` 不会触发发布。知识库路径默认按当前设备名从仓库根目录的 `vault-paths.json` 选择：MacBook 使用 `/Users/lhl/Blog`，`ALong-PC` 使用 `D:\Administrator\Documents\Blog`，无需每次设置环境变量。设备名匹配不区分大小写，Mac 的 `.local` 后缀可省略。换新设备时，先运行 `hostname`，把设备名和该机的 Blog 绝对路径加入配置；未配置的设备会报错，不会猜测路径。`OBSIDIAN_VAULT_PATH` 始终可以临时覆盖默认值，指向知识库根目录或直接指向 `Blog` 目录；工具会递归扫描最终解析出的 `Blog`，并硬编码排除 `Blog/Public`。
 
-新笔记可以不手写 front matter。先运行 `content:frontmatter`，它只为 `Blog` 内完全没有 YAML front matter 的 Markdown 笔记补齐 `title`、`description`、`created`、`category` 和 `public: false`，并写回私人知识库；已有 front matter 不会被覆盖。检查生成结果后，只有你手动将某篇的 `public` 改为 YAML 布尔值 `true`，它才会进入公开发布流程。该命令不会写入网站的公开文章、图片或 manifest。
+新笔记可以不手写 front matter。运行 `content:frontmatter` 时，每篇笔记都会检查 `title`、`description`、`created`、`category`、`public` 和 `tags`，无论是否已有 front matter。缺失或为空的字段会补齐：标题取文件名，描述取正文摘要，创建日期取文件创建时间（不可用时取修改时间），分类取直接父目录名（Blog 根目录下为“未分类”），发布状态默认为 `public: false`，标签默认为 `tags: []`。已有有效值、标签和其他自定义字段会保留；必要字段有非空但无效的值时会报错，修正后再运行。补齐结果写回私人知识库。只有你将某篇的 `public` 设为 YAML 布尔值 `true`，它才会进入公开发布流程。该命令不会写入网站的公开文章、图片或 manifest。
+
+`tags: []` 表示暂时没有标签，可以在 Obsidian 中添加多个标签，或写成 `tags: [播客, 产品思考]`。同步后这些标签会出现在文章底部及站点标签分类中；空列表不会生成标签项。旧文章没有 `tags` 仍可同步，标签不是发布必填字段。
 
 - 校验 `title`、`description`、`created`、`category`、`public`，保留其他未知字段；
-- 将 `created` 映射为 Hugo 的 `date`；
+- `created` 支持 `YYYY-MM-DD` 或带时区的 ISO 时间戳（例如 `2026-10-03T11:42:41+08:00`）；源笔记保留原值，同步时取其书写的日期作为公开文章的 `created` 和 Hugo 的 `date`；
 - 将播客等类型字段中的外部 `url` 安全映射为 `source_url`，避免覆盖 Hugo 页面路由；
 - 转换 Obsidian 双链、图片嵌入和本地 Markdown 图片；
 - 只复制文章实际引用且真实路径位于 `Blog` 内的附件；
@@ -108,7 +110,7 @@ Phase 2 工具只接受 YAML 布尔值 `public: true`。旧字段 `publish` 不�
 macOS / Linux：
 
 ```bash
-npm run content:frontmatter # 给缺少 front matter 的私人笔记补齐元数据（会写回 Blog）
+npm run content:frontmatter # 检查并补齐所有必要字段（会写回 Blog）
 npm run content:check      # 只校验，不写文件
 npm run content:dry-run    # 展示新增/更新/删除/跳过/警告
 npm run content:sync       # 校验通过后写入快照、Hugo 内容和 manifest
@@ -133,7 +135,7 @@ npm run content:sync
 
 ### 安全边界
 
-- `content:frontmatter` 只修改缺少 front matter 的私人源笔记，不会自动公开；`--check` 和 `--dry-run` 仍不写任何文件，任意文章失败时不会产生部分发布结果。
+- `content:frontmatter` 逐项补齐缺失或为空的必要字段，已有有效值会保留；补齐不会将笔记自动设为公开。`--check` 和 `--dry-run` 仍不写任何文件，任意文章失败时不会产生部分发布结果。
 - 写入前先生成临时 staging；提交阶段只备份和替换 manifest 登记的文件，失败会回滚。
 - `content:frontmatter` 与 `--write` 共用 `.publish.lock`，防止同时修改笔记和发布；若进程被强制终止，请确认没有任务运行后再删除残留锁文件。
 - 未登记的 `content/writing` 文件、栏目 `_index.md`、Projects、About 和 Now 不会被删除；目标路径冲突会整体失败。

@@ -5,7 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { isRealDate, validateManifestPath } from '../scripts/validate-content.mjs';
+import YAML from 'yaml';
+import { isRealDate, parseFrontMatter, validateManifestPath } from '../scripts/validate-content.mjs';
 
 const exec = promisify(execFile);
 const script = path.resolve('scripts/publish-content.mjs');
@@ -70,18 +71,21 @@ test('frontmatter mode fills only missing metadata, preserves bodies, and is ide
 
   const first = await runFrontmatter(ctx);
   assert.match(first.stdout, /generated: 1/);
+  assert.match(first.stdout, /updated: 1/);
   const generated = await fs.readFile(raw, 'utf8');
   assert.match(generated, /title: 新笔记/);
   assert.match(generated, /category: 子目录/);
   assert.match(generated, /public: false/);
+  assert.match(generated, /tags: \[\]/);
   assert.match(generated, /description: A prose excerpt\./);
   assert.equal(generated.slice(generated.indexOf('---\n', 4) + 4), body);
-  assert.equal(await fs.readFile(existing, 'utf8'), `---\n${validFront({ publicValue: 'false' })}\n---\nalready managed`);
+  assert.equal(await fs.readFile(existing, 'utf8'), `---\n${validFront({ publicValue: 'false' })}\ntags: []\n---\nalready managed`);
   assert.equal(await fs.readFile(publicSnapshot, 'utf8'), 'snapshot must stay untouched');
   assert.equal(await fs.readFile(path.join(ctx.repo, 'content', 'writing', '_index.md'), 'utf8'), 'writing-index');
   assert.equal(await fs.stat(path.join(ctx.repo, '.publish-manifest.json')).then(() => true, () => false), false);
   const second = await runFrontmatter(ctx);
   assert.match(second.stdout, /generated: 0/);
+  assert.match(second.stdout, /updated: 0/);
   assert.match(second.stdout, /skipped: 2/);
 });
 
@@ -126,8 +130,156 @@ test('frontmatter mode recognizes BOM-prefixed existing front matter', async () 
   const file = path.join(ctx.blog, 'bom.md');
   const original = '\uFEFF---\ntitle: Existing\n---\nbody';
   await fs.writeFile(file, original);
+  const result = await runFrontmatter(ctx);
+  assert.match(result.stdout, /updated: 1/);
+  assert.match(await fs.readFile(file, 'utf8'), /^\uFEFF---\ntitle: Existing\ndescription: body\ncreated: \d{4}-\d{2}-\d{2}\ncategory: 未分类\npublic: false\ntags: \[\]\n---\nbody$/);
+});
+
+test('frontmatter mode preserves existing tags, CRLF metadata, and body bytes', async () => {
+  const ctx = await workspace();
+  const tagged = path.join(ctx.blog, 'tagged.md');
+  const crlf = path.join(ctx.blog, 'crlf.md');
+  const taggedText = '---\ntitle: Tagged\ntags: null\n---\nbody';
+  const crlfText = '---\r\ntitle: CRLF\r\n# comment\r\n---\r\nbody\r\n';
+  await fs.writeFile(tagged, taggedText);
+  await fs.writeFile(crlf, crlfText);
+  const result = await runFrontmatter(ctx);
+  assert.match(result.stdout, /updated: 2/);
+  assert.match(result.stdout, /skipped: 0/);
+  assert.match(await fs.readFile(tagged, 'utf8'), /tags: \[\]/);
+  assert.equal((await fs.readFile(crlf, 'utf8')).slice(-8), '\r\nbody\r\n');
+  assert.match(await fs.readFile(crlf, 'utf8'), /# comment\r\ndescription: body\r\ncreated: \d{4}-\d{2}-\d{2}\r\ncategory: 未分类\r\npublic: false\r\ntags: \[\]\r\n---/);
+  const second = await runFrontmatter(ctx);
+  assert.match(second.stdout, /updated: 0/);
+  assert.match(second.stdout, /skipped: 2/);
+});
+
+test('frontmatter mode backfills flow and empty mappings while preserving populated tags', async () => {
+  const ctx = await workspace();
+  const flow = path.join(ctx.blog, 'flow.md');
+  const empty = path.join(ctx.blog, 'empty.md');
+  const indented = path.join(ctx.blog, 'indented.md');
+  const tagged = path.join(ctx.blog, 'tagged.md');
+  const taggedText = '---\ntitle: Tagged\ntags: [播客, 产品思考]\n---\nbody';
+  await fs.writeFile(flow, '---\n# comment\n{title: Flow, public: false}\n---\nunchanged body\n');
+  await fs.writeFile(empty, '---\n---\nempty body');
+  const indentedMetadata = '  title: Indented\n  public: false\n  description: |+\n    line\n\n';
+  await fs.writeFile(indented, `---\n${indentedMetadata}---\nindented body`);
+  const originalDescription = YAML.parse(indentedMetadata).description;
+  await fs.writeFile(tagged, taggedText);
+  const result = await runFrontmatter(ctx);
+  assert.match(result.stdout, /updated: 4/);
+  for (const file of [flow, empty, indented, tagged]) assert.deepEqual((await parseFrontMatter(file)).data.tags, file === tagged ? ['播客', '产品思考'] : []);
+  assert.equal((await parseFrontMatter(flow)).body, 'unchanged body\n');
+  assert.equal((await parseFrontMatter(flow)).data.public, false);
+  assert.equal((await parseFrontMatter(indented)).body, 'indented body');
+  assert.equal((await parseFrontMatter(indented)).data.title, 'Indented');
+  assert.equal((await parseFrontMatter(indented)).data.description, originalDescription);
+  assert.match(await fs.readFile(tagged, 'utf8'), /tags: \[播客, 产品思考\]/);
+});
+
+test('frontmatter mode preserves ISO created timestamps and publisher writes calendar date', async () => {
+  const ctx = await workspace();
+  await note(ctx.blog, 'topic/iso.md', validFront({ created: '2026-10-03T11:42:41+08:00', publicValue: 'true' }), 'Body');
+  const source = path.join(ctx.blog, 'topic/iso.md');
+  const before = await fs.readFile(source, 'utf8');
+  const filled = await runFrontmatter(ctx);
+  assert.match(filled.stdout, /updated: 1/);
+  assert.match(await fs.readFile(source, 'utf8'), /created: 2026-10-03T11:42:41\+08:00/);
+  await run(ctx, '--write');
+  const published = await fs.readFile(path.join(ctx.repo, 'content/writing/topic/iso.md'), 'utf8');
+  assert.match(published, /created: 2026-10-03/);
+  assert.match(published, /date: 2026-10-03/);
+  assert.match(before, /created: 2026-10-03T11:42:41\+08:00/);
+});
+
+test('existing tags do not skip missing required fields in the reported article structure', async () => {
+  const ctx = await workspace();
+  const body = '\n## 定义\n\nAgentScope 帮助理解 Agent 的运行机制。\n';
+  const file = await note(ctx.blog, 'AI 应用开发/AgentScope.md', [
+    'type: agentscope-learning-concept',
+    'title: 已有标题',
+    'created: 2026-10-03T11:42:41+08:00',
+    'tags: [agentscope, 学习记录, Agent]',
+  ].join('\n'), body);
+  const blank = await note(ctx.blog, 'empty-fields.md', 'title: " "\ndescription: null\ncreated: ""\ncategory: " "\npublic: null\ntags: ""', 'Plain body.');
+  const result = await runFrontmatter(ctx);
+  assert.match(result.stdout, /updated: 2/);
+  const article = await parseFrontMatter(file);
+  assert.equal(article.data.title, '已有标题');
+  assert.equal(article.data.description, 'AgentScope 帮助理解 Agent 的运行机制。');
+  assert.equal(article.data.category, 'AI 应用开发');
+  assert.equal(article.data.created, '2026-10-03T11:42:41+08:00');
+  assert.equal(article.data.public, false);
+  assert.deepEqual(article.data.tags, ['agentscope', '学习记录', 'Agent']);
+  assert.equal(article.data.type, 'agentscope-learning-concept');
+  assert.equal(article.body, body);
+  const empty = (await parseFrontMatter(blank)).data;
+  assert.equal(empty.title, 'empty-fields');
+  assert.equal(empty.description, 'Plain body.');
+  assert.equal(empty.category, '未分类');
+  assert.equal(isRealDate(empty.created), true);
+  assert.equal(empty.public, false);
+  assert.deepEqual(empty.tags, []);
+  assert.match((await run(ctx, '--check')).stdout, /added: 0/);
+  const again = await runFrontmatter(ctx);
+  assert.match(again.stdout, /updated: 0/);
+  assert.match(again.stdout, /skipped: 2/);
+  assert.match(again.stdout, /required fields complete/);
+});
+
+test('frontmatter mode rejects non-boolean public values without writing any notes', async () => {
+  const ctx = await workspace();
+  const bad = await note(ctx.blog, 'bad.md', 'title: Bad\ndescription: Text\ncreated: 2026-10-03\ncategory: topic\npublic: "true"', 'Body');
+  const good = await note(ctx.blog, 'good.md', 'title: Good', 'Body');
+  const badBefore = await fs.readFile(bad, 'utf8');
+  const goodBefore = await fs.readFile(good, 'utf8');
+  await assert.rejects(runFrontmatter(ctx), error => /public must be a boolean/.test(error.stdout));
+  assert.equal(await fs.readFile(bad, 'utf8'), badBefore);
+  assert.equal(await fs.readFile(good, 'utf8'), goodBefore);
+});
+
+test('frontmatter mode refuses changes to unrelated YAML aliases', async () => {
+  const ctx = await workspace();
+  const good = await note(ctx.blog, 'a-good.md', 'title: Good', 'Body');
+  const aliased = await note(ctx.blog, 'z-alias.md', 'title: &empty null\ncustom: *empty', 'Body');
+  const originals = await Promise.all([good, aliased].map(file => fs.readFile(file)));
+  await assert.rejects(runFrontmatter(ctx), error => /check anchors and aliases/.test(error.stdout));
+  for (const [index, file] of [good, aliased].entries()) assert.deepEqual(await fs.readFile(file), originals[index]);
+});
+
+test('BOM-prefixed raw notes can be completed and published after explicit opt-in', async () => {
+  const ctx = await workspace();
+  const file = path.join(ctx.blog, 'topic', 'bom.md');
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  await fs.writeFile(file, '\uFEFF# Heading\r\n\r\nText.\r\n');
   await runFrontmatter(ctx);
-  assert.equal(await fs.readFile(file, 'utf8'), original);
+  const completed = await fs.readFile(file, 'utf8');
+  assert.match(completed, /^\uFEFF---\r\n/);
+  assert.equal((await parseFrontMatter(file)).data.public, false);
+  await fs.writeFile(file, completed.replace('public: false', 'public: true'));
+  await run(ctx, '--write');
+  const published = await parseFrontMatter(path.join(ctx.repo, 'content', 'writing', 'topic', 'bom.md'));
+  assert.equal(published.data.title, 'bom');
+  assert.deepEqual(published.data.tags, []);
+  assert.match(published.body, /Text\./);
+});
+
+test('frontmatter mode rejects malformed or non-mapping front matter before any write', async () => {
+  for (const text of [
+    '---\n- not a mapping\n---\nbody',
+    '---\ntitle: [unterminated\n---\nbody',
+    '---\ntitle: No closing delimiter\nbody',
+  ]) {
+    const ctx = await workspace();
+    const good = path.join(ctx.blog, 'a-good.md');
+    const malformed = path.join(ctx.blog, 'z-bad.md');
+    await fs.writeFile(good, '---\ntitle: Good\n---\nbody');
+    await fs.writeFile(malformed, text);
+    await assert.rejects(runFrontmatter(ctx));
+    assert.equal(await fs.readFile(good, 'utf8'), '---\ntitle: Good\n---\nbody');
+    assert.equal(await fs.readFile(malformed, 'utf8'), text);
+  }
 });
 
 test('publishes nested notes, links and attachments while check/dry-run remain read-only', async () => {
@@ -165,6 +317,7 @@ test('publishes nested notes, links and attachments while check/dry-run remain r
   assert.match(output, /date: 2026-09-28/);
   assert.match(output, /nested: preserved/);
   assert.match(output, /source_url: https:\/\/podcasts\.example\.com\/episode\/1/);
+  assert.deepEqual((await parseFrontMatter(path.join(ctx.repo, 'content/writing/deep/topic/one.md'))).data.tags, ['alpha']);
   assert.doesNotMatch(output, /^url:/m);
   assert.match(output, /\[read two\]\(\{\{< ref "\/writing\/deep\/topic\/two\.md" >\}\}#a-heading\)/);
   assert.match(output, /!\[photo\]\(\/images\/published\/deep\/topic\/one\/photo%20%231%282%29%3F\.png\)/);

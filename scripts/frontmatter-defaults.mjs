@@ -4,8 +4,9 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
+import { isDeepStrictEqual } from 'node:util';
 import YAML from 'yaml';
-import { toPosix } from './validate-content.mjs';
+import { toPosix, validateDocument } from './validate-content.mjs';
 import { resolveVaultPath } from './resolve-vault-path.mjs';
 
 if (process.argv.length !== 3 || process.argv[2] !== '--frontmatter') {
@@ -13,7 +14,7 @@ if (process.argv.length !== 3 || process.argv[2] !== '--frontmatter') {
   process.exit(2);
 }
 
-const report = { generated: [], unchanged: [], skipped: [], failures: [] };
+const report = { generated: [], updated: [], unchanged: [], skipped: [], failures: [] };
 let releaseLock = async () => {};
 try {
   const blog = await resolveBlogDirectory(await resolveVaultPath());
@@ -25,7 +26,13 @@ try {
     const body = original.toString('utf8');
     // Detect against the same byte snapshot used to build the output.
     if (hasFrontMatter(body)) {
-      report.skipped.push(`${note.relative}: front matter already present`);
+      const stat = await fs.stat(note.absolute);
+      const frontMatter = parseExistingFrontMatter(original, note.relative, stat);
+      if (!frontMatter.output) {
+        report.skipped.push(`${note.relative}: required fields complete`);
+        continue;
+      }
+      changes.push({ ...note, hash: hash(original), output: frontMatter.output, kind: 'updated' });
       continue;
     }
     const stat = await fs.stat(note.absolute);
@@ -37,12 +44,17 @@ try {
         ? '未分类'
         : path.posix.basename(path.posix.dirname(toPosix(note.relative))),
       public: false,
+      tags: [],
     };
-    const prefix = Buffer.from(`---\n${YAML.stringify(data, { lineWidth: 0 }).trimEnd()}\n---\n`, 'utf8');
-    changes.push({ ...note, hash: hash(original), output: Buffer.concat([prefix, original]) });
+    const eol = body.includes('\r\n') ? '\r\n' : '\n';
+    const bom = body.startsWith('\uFEFF') ? '\uFEFF' : '';
+    const prefix = Buffer.from(`${bom}---${eol}${YAML.stringify(data, { lineWidth: 0 }).trimEnd().replaceAll('\n', eol)}${eol}---${eol}`, 'utf8');
+    const sourceBytes = bom ? original.subarray(Buffer.byteLength(bom)) : original;
+    changes.push({ ...note, hash: hash(original), output: Buffer.concat([prefix, sourceBytes]), kind: 'generated' });
   }
   await commit(changes);
-  report.generated.push(...changes.map(change => change.relative));
+  report.generated.push(...changes.filter(change => change.kind === 'generated').map(change => change.relative));
+  report.updated.push(...changes.filter(change => change.kind === 'updated').map(change => change.relative));
 } catch (error) {
   report.failures.push(safeMessage(error));
   printReport();
@@ -172,6 +184,81 @@ async function atomicRestore(target, backup) {
 }
 
 function hasFrontMatter(text) { return /^\uFEFF?---[ \t]*\r?\n/.test(text); }
+function parseExistingFrontMatter(bytes, relative, stat) {
+  const text = bytes.toString('utf8');
+  const bom = text.startsWith('\uFEFF') ? '\uFEFF' : '';
+  const start = bom.length;
+  const opening = text.slice(start).match(/^---[ \t]*(\r?\n)/);
+  if (!opening) throw new Error(`invalid front matter in ${relative}`);
+  const contentStart = start + opening[0].length;
+  const closingMatch = /^---[ \t]*(?:\r?\n|$)/gm;
+  closingMatch.lastIndex = contentStart;
+  const closing = closingMatch.exec(text);
+  if (!closing) throw new Error(`unclosed front matter in ${relative}`);
+  const content = text.slice(contentStart, closing.index);
+  const document = YAML.parseDocument(content, { prettyErrors: false });
+  if (document.errors.length) throw new Error(`invalid YAML in ${relative}: ${document.errors[0].message}`);
+  if (document.contents !== null && !YAML.isMap(document.contents)) throw new Error(`front matter must be a mapping in ${relative}`);
+  const body = text.slice(closing.index + closing[0].length);
+  const defaults = {
+    title: path.posix.basename(toPosix(relative)).replace(/\.md$/i, ''),
+    description: excerpt(body),
+    created: localDate(stat.birthtimeMs > 0 ? stat.birthtime : stat.mtime),
+    category: path.posix.dirname(toPosix(relative)) === '.'
+      ? '未分类'
+      : path.posix.basename(path.posix.dirname(toPosix(relative))),
+    public: false,
+    tags: [],
+  };
+  const data = document.toJS() ?? {};
+  const empty = value => value === undefined || value === null
+    || (typeof value === 'string' && !value.trim());
+  const fill = new Map();
+  for (const key of ['title', 'description', 'created', 'category', 'public', 'tags']) {
+    if (empty(data[key])) {
+      fill.set(key, defaults[key]);
+    }
+  }
+  const candidate = { ...data, ...Object.fromEntries(fill) };
+  const validation = validateDocument({
+    title: candidate.title,
+    description: candidate.description,
+    created: candidate.created,
+    category: candidate.category,
+  });
+  if (validation) throw new Error(`${relative}: ${validation}`);
+  if (typeof candidate.public !== 'boolean') throw new Error(`${relative}: public must be a boolean`);
+  if (!fill.size) return { output: null };
+  const eol = opening[1];
+  const additions = [...fill].map(([key, value]) => YAML.stringify({ [key]: value }, { lineWidth: 0 }).trimEnd()).join('\n').replaceAll('\n', eol);
+  const addition = `${content.endsWith(eol) || !content ? '' : eol}${additions}${eol}`;
+  const appended = YAML.parseDocument(content + addition, { prettyErrors: false });
+  const serialize = [...fill].some(([key]) => document.has(key))
+    || document.contents?.flow === true
+    || /^\.\.\.[ \t]*(?:\r?\n|$)/m.test(content)
+    || appended.errors.length > 0;
+  let replacement;
+  if (serialize) {
+    for (const [key, value] of fill) document.set(key, value);
+    replacement = document.toString({ lineWidth: 0 }).replaceAll('\n', eol);
+  } else {
+    replacement = addition;
+  }
+  const emitted = YAML.parseDocument(serialize ? replacement : content + replacement, { prettyErrors: false });
+  if (emitted.errors.length || !isDeepStrictEqual(emitted.toJS(), candidate)) {
+    throw new Error(`${relative}: filling required fields would change existing YAML values; check anchors and aliases`);
+  }
+  const closeOffset = Buffer.byteLength(text.slice(0, closing.index));
+  const closeEndOffset = Buffer.byteLength(text.slice(0, closing.index + closing[0].length));
+  const replacementBytes = Buffer.from(replacement, 'utf8');
+  const output = serialize
+    ? Buffer.concat([
+      bytes.subarray(0, Buffer.byteLength(text.slice(0, contentStart))), replacementBytes,
+      bytes.subarray(closeOffset, closeEndOffset), bytes.subarray(closeEndOffset),
+    ])
+    : Buffer.concat([bytes.subarray(0, closeOffset), replacementBytes, bytes.subarray(closeOffset)]);
+  return { output };
+}
 function excerpt(text) {
   const clean = text.replace(/```[\s\S]*?```/g, ' ').replace(/`[^`]*`/g, ' ')
     .replace(/!?(?:\[[^\]]*\]\([^)]*\)|\[([^\]]+)\]\([^)]*\))/g, '$1')

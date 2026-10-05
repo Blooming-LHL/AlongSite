@@ -4,6 +4,7 @@ description: Paltering 不是“说假话”， 而是利用真话让对方得�
 created: 2026-09-27
 category: 心理学
 public: true
+tags: []
 date: 2026-09-27
 slug: 何谓-paltering
 ---

@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import YAML from 'yaml';
 
-const FRONT_MATTER = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
+const FRONT_MATTER = /^\uFEFF?---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
 
 export const toPosix = value => value.split(path.sep).join('/');
 
@@ -12,7 +12,12 @@ export function isWithin(root, candidate) {
 }
 
 export function dateText(value) {
-  return value instanceof Date ? value.toISOString().slice(0, 10) : value;
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  // Keep the calendar date written in Obsidian, including its local timezone.
+  if (typeof value === 'string'
+    && /^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(value)
+    && !Number.isNaN(Date.parse(value))) return value.slice(0, 10);
+  return value;
 }
 
 export function isRealDate(value) {
@@ -46,7 +51,7 @@ export function validateDocument(data) {
   if (typeof data.title !== 'string' || typeof data.description !== 'string' || typeof data.category !== 'string') {
     return 'title, description and category must be strings';
   }
-  if (!isRealDate(data.created)) return 'created must be a real YYYY-MM-DD date';
+  if (!isRealDate(data.created)) return 'created must be a real YYYY-MM-DD date or ISO timestamp with timezone';
   if (data.slug !== undefined && (typeof data.slug !== 'string' || !/^[\p{L}\p{N}]+(?:[-_][\p{L}\p{N}]+)*$/u.test(data.slug))) {
     return 'slug must contain only letters, numbers, hyphens or underscores';
   }
