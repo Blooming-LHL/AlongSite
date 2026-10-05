@@ -15,6 +15,7 @@
   </aside>
   {{ end }}
 
+  {{ partial "article-toc.html" (dict "page" . "variant" "mobile") }}
   <div class="article-content">{{ .Content }}</div>
   {{ with .GetTerms "tags" }}<footer class="article-tags"><span>标签</span>{{ range . }}<a href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>{{ end }}</footer>{{ end }}
 </article>

@@ -1,0 +1,14 @@
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格">
+  <table>
+    <thead>
+      {{- range .THead }}
+        <tr>{{- range . }}<th{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</th>{{- end }}</tr>
+      {{- end }}
+    </thead>
+    <tbody>
+      {{- range .TBody }}
+        <tr>{{- range . }}<td{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</td>{{- end }}</tr>
+      {{- end }}
+    </tbody>
+  </table>
+</div>

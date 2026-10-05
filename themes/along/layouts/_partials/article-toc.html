@@ -1,0 +1,17 @@
+{{- $page := .page -}}
+{{- with $page.TableOfContents -}}
+{{- if findRE `<a\s` . -}}
+  {{- $toc := . | replaceRE ` id="TableOfContents"` (printf ` id="TableOfContents-%s"` $.variant) | safeHTML -}}
+  {{- if eq $.variant "mobile" -}}
+    <details class="article-toc-mobile">
+      <summary>目录</summary>
+      <div class="article-toc">{{ $toc }}</div>
+    </details>
+  {{- else -}}
+    <section class="sidebar-section sidebar-section-toc" aria-labelledby="article-toc-heading">
+      <p class="sidebar-label" id="article-toc-heading">目录</p>
+      <div class="article-toc">{{ $toc }}</div>
+    </section>
+  {{- end -}}
+{{- end -}}
+{{- end -}}

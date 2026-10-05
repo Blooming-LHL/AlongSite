@@ -1,4 +1,5 @@
 <div class="right-sidebar-inner">
+  {{ if .IsPage }}{{ partial "article-toc.html" (dict "page" . "variant" "desktop") }}{{ end }}
   <a class="search-shortcut" href="{{ "search/" | relURL }}">
     <span aria-hidden="true">⌕</span><span>搜索文章</span><span class="search-shortcut-arrow" aria-hidden="true">↗</span>
   </a>

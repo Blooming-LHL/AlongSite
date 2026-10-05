@@ -40,6 +40,7 @@ npm run preview:search
 - 左侧个人资料的姓名、头像和个性签名分别由 `params.author`、`params.avatar`、`params.signature` 配置；默认 `static/images/avatar.svg` 是字形占位头像，替换为自己的照片后同步更新 `params.avatar`。头像角上的状态标志由 `params.status.emoji` 和 `params.status.text` 控制，例如 `😊 / 开心`、`😢 / 难过`、`🏖️ / 休假中`、`🧋 / 喝奶茶中`；改动配置并重新部署即可让所有访客看到新状态。
 - `params.email`、`params.github`、`params.resume` 和 `params.defaultImage` 请在发布前检查并替换为真实公开信息。
 - 首页布局在 `themes/along/layouts/home.html`；通用元信息在 `themes/along/layouts/_partials/head.html`。
+- 文章页采用高不透明度的阅读面板，正文排版集中在 `static/css/article.css`，代码高亮配色在 `static/css/syntax.css`；外层侧栏与背景继续使用 `main.css` 的玻璃样式。桌面文章目录显示在右侧，较窄屏幕可在正文顶部展开目录。代码块提供语言标识和复制按钮，宽表格在自身区域横向滚动。
 - 文章放在 `content/writing/`，项目放在 `content/projects/`。每篇文章建议提供 `title`、`description`、`date`、`categories` 和 `tags`。
 - 示例文章和项目已清理；新的公开文章由 `content:sync` 写入 `content/writing/`，项目可按需添加到 `content/projects/`。
 
@@ -70,6 +71,21 @@ weight: 10
 ## 页面与边界
 
 已包含首页、Writing 分类层级（engineering / essays / life）、Projects、About、Now、Search、404、RSS、Sitemap、robots.txt，以及 canonical、description、Open Graph 和 Twitter Card。Pagefind 只在 `/search/` 页面按需加载，索引 Writing、Projects、About 和 Now 等公开内容详情页。
+
+文章中的普通引用使用紫色引用样式；需要说明、建议或警告时，可以写 Markdown 提示块：
+
+```markdown
+> [!NOTE]
+> 补充背景或说明。
+
+> [!TIP]
+> 一个可以直接尝试的建议。
+
+> [!WARNING]
+> 需要留意的操作条件。
+```
+
+同时支持 `[!IMPORTANT]` 和 `[!CAUTION]`。提示块由 Hugo 构建为 HTML，关闭 JavaScript 时仍可阅读；复制按钮和目录当前章节高亮属于渐进增强。排版验证样稿保存在 `test/fixtures/article-typography.md`，不作为公开文章发布。
 
 ## Pagefind 与 Netlify
 

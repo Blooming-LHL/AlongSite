@@ -13,6 +13,7 @@
 <title>{{ $pageTitle }}</title>
 <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
 <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+{{ if .IsPage }}<link rel="stylesheet" href="{{ "css/article.css" | relURL }}"><link rel="stylesheet" href="{{ "css/syntax.css" | relURL }}"><script src="{{ "js/article.js" | relURL }}" defer></script>{{ end }}
 {{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ site.Title }} RSS" href="{{ .Permalink }}">{{ end }}
 <meta property="og:locale" content="zh_CN">
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
