@@ -42,6 +42,21 @@
       "attachments": []
     },
     {
+      "source": "Blog/自我剖析/学会做一个松弛感拉满的人.md",
+      "public": "Blog/Public/自我剖析/学会做一个松弛感拉满的人.md",
+      "hugo": "content/writing/自我剖析/学会做一个松弛感拉满的人.md",
+      "url": "/writing/自我剖析/学会做一个松弛感拉满的人/",
+      "hash": "d6e02ee45597cb42d31bce29fcbf895e71fb1196437dc820bfcb61599d5efb32",
+      "attachments": [
+        {
+          "source": "Blog/image/松弛的夜晚.png",
+          "public": "Blog/Public/images/published/自我剖析/学会做一个松弛感拉满的人/松弛的夜晚.png",
+          "hugo": "static/images/published/自我剖析/学会做一个松弛感拉满的人/松弛的夜晚.png",
+          "hash": "de353b47a03845187ac7256ccce48b9bec370664566767c7b885a2883a7dacb3"
+        }
+      ]
+    },
+    {
       "source": "Blog/AI 应用开发/以 AgentScope 为例去理解 Agent 的运行机制与工程边界.md",
       "public": "Blog/Public/AI 应用开发/以 AgentScope 为例去理解 Agent 的运行机制与工程边界.md",
       "hugo": "content/writing/AI 应用开发/以 AgentScope 为例去理解 Agent 的运行机制与工程边界.md",
