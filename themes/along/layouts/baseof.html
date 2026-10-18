@@ -5,14 +5,20 @@
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要内容</a>
-    <div class="site-layout">
+    <div class="site-layout{{ if .IsHome }} site-layout-home{{ end }}">
       <aside class="site-sidebar site-sidebar-left" aria-label="个人导航" data-pagefind-ignore>
         {{ partial "header.html" . }}
       </aside>
       <main id="main-content" class="site-main">{{ block "main" . }}{{ end }}</main>
-      <aside class="site-sidebar site-sidebar-right" aria-label="站点信息" data-pagefind-ignore>
-        {{ partial "right-sidebar.html" . }}
+      {{ if .IsHome }}
+      <aside class="home-sidebar-information" aria-label="站点信息" data-pagefind-ignore>
+        {{ partial "sidebar-information.html" . }}
       </aside>
+      <div class="sidebar-links home-sidebar-links" data-pagefind-ignore>{{ partial "social-links.html" . }}</div>
+      {{ end }}
+      {{ if not .IsHome }}<aside class="site-sidebar site-sidebar-right" aria-label="站点信息" data-pagefind-ignore>
+        {{ partial "right-sidebar.html" . }}
+      </aside>{{ end }}
     </div>
     {{ partial "footer.html" . }}
   </body>

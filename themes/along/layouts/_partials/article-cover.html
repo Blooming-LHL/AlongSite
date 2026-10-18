@@ -1,0 +1,27 @@
+{{- /* Explicit public URL wins; otherwise only images marked 'banner' are covers. */ -}}
+{{- $src := "" -}}
+{{- $alt := printf "%s的封面" .Title -}}
+{{- if eq (printf "%T" .Params.cover) "string" -}}
+  {{- $src = strings.TrimSpace .Params.cover -}}
+{{- end -}}
+{{- if not $src -}}
+  {{- range findRE `(?is)<img\b[^>]*>` .Content -}}
+    {{- $altMatch := findRESubmatch `(?is)[[:space:]]alt\s*=\s*["']([^"']*)["']` . -}}
+    {{- $srcMatch := findRESubmatch `(?is)[[:space:]]src\s*=\s*["']([^"']+)["']` . -}}
+    {{- if and $altMatch $srcMatch -}}
+      {{- $imageAlt := index (index $altMatch 0) 1 | htmlUnescape | lower -}}
+      {{- if findRE `(^|[[:space:]])banner([[:space:]]|$)` $imageAlt -}}
+        {{- $src = index (index $srcMatch 0) 1 | htmlUnescape -}}
+        {{- break -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- /* Do not promote executable/data URI schemes into an image/link context. */ -}}
+{{- if and (findRE `(?i)^[[:space:]]*[a-z][a-z0-9+.-]*:` $src) (not (findRE `(?i)^https?://` $src)) -}}
+  {{- $src = "" -}}
+{{- end -}}
+{{- if and $src (not (hasPrefix $src "/")) (not (findRE `(?i)^https?://` $src)) -}}
+  {{- $src = printf "%s%s" .RelPermalink $src -}}
+{{- end -}}
+{{- return (dict "src" $src "alt" $alt) -}}

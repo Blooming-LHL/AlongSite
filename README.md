@@ -40,6 +40,8 @@ npm run preview:search
 - 左侧个人资料的姓名、头像和个性签名分别由 `params.author`、`params.avatar`、`params.signature` 配置；默认 `static/images/avatar.svg` 是字形占位头像，替换为自己的照片后同步更新 `params.avatar`。头像角上的状态标志由 `params.status.emoji` 和 `params.status.text` 控制，例如 `😊 / 开心`、`😢 / 难过`、`🏖️ / 休假中`、`🧋 / 喝奶茶中`；改动配置并重新部署即可让所有访客看到新状态。
 - `params.email`、`params.github`、`params.resume` 和 `params.defaultImage` 请在发布前检查并替换为真实公开信息。
 - 首页布局在 `themes/along/layouts/home.html`；通用元信息在 `themes/along/layouts/_partials/head.html`。
+- 首页采用“左侧整合栏 + 双列文章瀑布流”：搜索、最近更新、分类、标签和“现在”集中在左侧，文章详情页继续保留右侧目录。首页专用样式和排列逻辑分别在 `static/css/home.css`、`static/js/home.js`；手机端文章按时间顺序单列显示，辅助信息放在列表下方。禁用 JavaScript 时仍可阅读普通网格卡片。
+- 首页封面优先使用文章的 `cover` 字段（已发布的图片地址）；没有该字段时，识别正文中带 `banner` 标记的图片，例如 `![banner banner-fade](/images/published/你的图片.png)`。普通插图不会被当作封面，有封面的卡片会自然增高；原文图片仍保留。相对图片路径以文章地址为基准，推荐使用同步脚本生成的 `/images/published/...` 路径。
 - 文章页采用高不透明度的阅读面板，正文排版集中在 `static/css/article.css`，代码高亮配色在 `static/css/syntax.css`；外层侧栏与背景继续使用 `main.css` 的玻璃样式。桌面文章目录显示在右侧，较窄屏幕可在正文顶部展开目录。代码块提供语言标识和复制按钮，宽表格在自身区域横向滚动。
 - 文章放在 `content/writing/`，项目放在 `content/projects/`。每篇文章建议提供 `title`、`description`、`date`、`categories` 和 `tags`。
 - 示例文章和项目已清理；新的公开文章由 `content:sync` 写入 `content/writing/`，项目可按需添加到 `content/projects/`。

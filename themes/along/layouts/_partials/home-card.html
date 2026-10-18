@@ -1,0 +1,10 @@
+{{- $cover := partial "article-cover.html" . -}}
+<article class="card article-card{{ if $cover.src }} card-has-cover{{ end }}">
+  {{ with $cover.src }}<a class="card-cover" href="{{ $.RelPermalink }}" aria-label="{{ $.Title }}"><img src="{{ . | relURL }}" alt="{{ $cover.alt }}" width="900" height="600" loading="lazy" decoding="async"></a>{{ end }}
+  <div class="card-content">
+    <div class="card-meta"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>{{ with .Params.category }}<span>{{ . }}</span>{{ else }}{{ with .Params.categories }}<span>{{ index . 0 }}</span>{{ end }}{{ end }}</div>
+    <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+    <p>{{ .Description | default (.Summary | plainify | truncate 120) }}</p>
+    <div class="card-footer"><span class="card-reading-time">{{ .ReadingTime | default 1 }} 分钟阅读</span><a class="text-link" href="{{ .RelPermalink }}">阅读全文 <span aria-hidden="true">↗</span></a></div>
+  </div>
+</article>
