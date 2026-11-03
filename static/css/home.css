@@ -280,3 +280,7 @@
     transition: none;
   }
 }
+
+/* Blog keeps the former home feed while identity moves to /about/. */
+.blog-page-title { margin: 40px 0 -20px; font-size: 25px; }
+.blog-page-title span { font-size: 12px; font-weight: 400; color: var(--muted); }

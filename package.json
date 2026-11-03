@@ -12,8 +12,8 @@
     "content:sync": "node scripts/publish-content.mjs --write",
     "dev": "hugo server --buildDrafts --disableFastRender",
     "build:hugo": "hugo --cleanDestinationDir --gc --minify",
-    "build:search": "pagefind --site public --force-language zh",
-    "preview:search": "npm run build:hugo && pagefind --site public --force-language zh --serve",
+    "build:search": "pagefind --site public",
+    "preview:search": "npm run build:hugo && pagefind --site public --serve",
     "build": "npm run build:hugo && npm run build:search",
     "test": "node --test"
   },

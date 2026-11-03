@@ -1,0 +1,2 @@
+{{- $lang := .Params.profile_language | default "zh" -}}
+{{- return (dict "lang" $lang "profile" (index hugo.Data.portfolio $lang) "ui" (index hugo.Data.profile_ui $lang)) -}}

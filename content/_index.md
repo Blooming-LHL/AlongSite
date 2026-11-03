@@ -1,4 +1,4 @@
 ---
-title: "首页"
-description: "一个关于技术、创造与日常观察的个人博客。"
+title: "ALong · Engineering & everyday life"
+description: "你好，我是 ALong。了解我的 AI Engineering 方向，或阅读我的技术与生活记录。"
 ---

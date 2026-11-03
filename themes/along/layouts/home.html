@@ -1,43 +1,20 @@
 {{ define "main" }}
-<section class="hero" aria-labelledby="daily-note-heading">
-  <div class="hero-content">
-    <div class="hero-topline"><span class="hero-sparkle" aria-hidden="true">✦</span><p id="daily-note-heading" class="hero-kicker">今日灵感</p><time id="daily-note-date" class="hero-date"></time></div>
-    <blockquote class="hero-quote" id="daily-note-quote">把好奇留给今天，让灵感自然发生。</blockquote>
-    <div class="hero-bottomline">
-      <a id="daily-note-source" class="hero-source" href="{{ "writing/" | relURL }}" data-fallback-href="{{ "writing/" | relURL }}">ALong 的一句话 ↗</a>
-      <a class="hero-explore" href="{{ "writing/" | relURL }}">翻阅文章 <span aria-hidden="true">↗</span></a>
-    </div>
-  </div>
+<section class="entry-intro" aria-labelledby="entry-title">
+  <p class="p-kicker"><span class="p-dot" aria-hidden="true"></span> ENGINEERING & EVERYDAY LIFE</p>
+  <h1 id="entry-title">你好，我是 {{ site.Params.author }}<span class="p-period">。</span><br><span class="entry-subtitle">构建技术，也感受生活。</span></h1>
+  <p class="entry-description">一个关于 AI、工程实践与日常思考的个人空间。<br>你可以从这里，选择想了解的那一面。</p>
 </section>
-<script type="module" src="{{ "js/daily-note.js" | relURL }}"></script>
-
-{{ $projects := where site.RegularPages "Section" "projects" }}
-{{ with $projects }}
-{{ $featuredProjects := where . "Params.featured" true }}
-{{ if not $featuredProjects }}{{ $featuredProjects = . }}{{ end }}
-<section class="home-section" aria-labelledby="projects-heading">
-  <div class="section-heading"><div><p class="eyebrow">Selected work</p><h2 id="projects-heading">精选项目</h2></div><a class="text-link" href="{{ "projects/" | relURL }}">全部项目 ↗</a></div>
-  <div class="card-grid project-grid">{{ range first 4 $featuredProjects.ByWeight }}{{ partial "project-card.html" . }}{{ end }}</div>
-</section>
-{{ end }}
-
-{{ $writing := where site.RegularPages "Section" "writing" }}
-{{ with $writing }}
-{{ $featuredWriting := where $writing "Params.featured" true }}
-{{ $writingHeading := "精选文章" }}
-{{ if not $featuredWriting }}{{ $featuredWriting = . }}{{ $writingHeading = "最近文章" }}{{ end }}
-<section class="home-section" aria-labelledby="writing-heading">
-  <div class="section-heading"><div><p class="eyebrow">Writing</p><h2 id="writing-heading">{{ $writingHeading }}</h2></div><a class="text-link" href="{{ "writing/" | relURL }}">全部 Writing ↗</a></div>
-  <div class="card-grid article-grid">{{ range first 5 $featuredWriting.ByDate.Reverse }}{{ partial "home-card.html" . }}{{ end }}</div>
-</section>
-{{ end }}
-
-{{ $reflections := where $writing "Params.categories" "intersect" (slice "随笔" "生活") }}
-{{ with $reflections }}
-<section class="home-section" aria-labelledby="reflections-heading">
-  <div class="section-heading"><div><p class="eyebrow">Life & thoughts</p><h2 id="reflections-heading">生活与随笔</h2></div></div>
-  <div class="card-grid article-grid">{{ range first 3 .ByDate.Reverse }}{{ partial "home-card.html" . }}{{ end }}</div>
-</section>
-{{ end }}
-
+<div class="entry-choices">
+  <a class="entry-choice entry-choice-about" href="{{ "about/" | relURL }}">
+    <div class="choice-top"><span>01 / ABOUT</span><span class="choice-arrow" aria-hidden="true">↗</span></div>
+    <div class="choice-content"><p class="choice-role">AI Engineer · Applied AI</p><h2>个人简介</h2><p>工程实践、技术方向与职业背景。<br>从正在构建的东西，认识我。</p></div>
+    <div class="choice-bottom"><span>Projects · Experience · CV</span><span>了解我 →</span></div>
+  </a>
+  <a class="entry-choice entry-choice-blog" href="{{ "blog/" | relURL }}">
+    <div class="choice-top"><span>02 / BLOG</span><span class="choice-arrow" aria-hidden="true">↗</span></div>
+    <div class="choice-content"><p class="choice-role">Notes from a curious mind</p><h2>我的博客</h2><p>技术笔记、阅读片段与生活观察。<br>留下一些值得慢慢想清楚的事情。</p></div>
+    <div class="choice-bottom"><span>Engineering · Reading · Life</span><span>开始阅读 →</span></div>
+  </a>
+</div>
+<div class="entry-note"><span>两种视角，同一个我。</span><span>BUILT WITH CURIOSITY <span aria-hidden="true">＋</span></span></div>
 {{ end }}

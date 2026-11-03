@@ -50,23 +50,23 @@ params:
   email: "1458169154@qq.com"
   github: "https://github.com/Blooming-LHL"
   resume: ""
-  siteNote: "这是一个可替换的 Hugo MVP 示例站点。"
+  siteNote: "记录技术，也感受生活。"
 
 menu:
   main:
-    - name: "首页"
+    - name: "网站入口"
       pageRef: "/"
       weight: 10
-    - name: "Writing"
-      pageRef: "/writing"
-      weight: 20
-    - name: "Projects"
-      pageRef: "/projects"
-      weight: 30
-    - name: "About"
+    - name: "个人简介"
       pageRef: "/about"
+      weight: 20
+    - name: "我的博客"
+      pageRef: "/blog"
+      weight: 30
+    - name: "全部文章"
+      pageRef: "/writing"
       weight: 40
-    - name: "Now"
+    - name: "现在"
       pageRef: "/now"
       weight: 50
     - name: "搜索"

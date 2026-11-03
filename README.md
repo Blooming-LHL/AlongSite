@@ -2,6 +2,18 @@
 
 这是个人博客技术方案 Phase 1/2/3 的 Hugo 源码：一个资源自托管、响应式的轻量主题，并附带从 Obsidian `Blog` 快照发布公开文章的安全脚本、Pagefind 搜索和 Netlify 部署配置。
 
+## 双入口与个人简介
+
+- `/` 是“个人简介 / 我的博客”双入口，采用暖白底、深色文字和朱红强调色。
+- `/about/` 是求职导向的个人简介，首屏展示 AI Engineer 定位，提供 Projects、Experience、Education、Technical Skills、CV 和 Contact 锚点。
+- `/blog/` 复用原首页的每日寄语、文章瀑布流、分类和标签。头像、个人简介与生活状态已移入个人简介页。原有文章、分类、搜索地址保持不变。
+- `data/portfolio.yaml` 的 `zh` / `en` 分别管理两版真实资料；`data/profile_ui.yaml` 管理 UI 翻译。中文在 `/about/`，英文在 `/en/about/`，使用普通链接切换，禁用 JavaScript 时仍可访问。博客继续使用中文。
+- `content/about.md` 和 `content/about-en.md` 声明两版页面。精选项目来自个人资料数据中的阿里云实习项目，展示个人贡献、项目成果及实际架构。`content/projects/` 继续保存其他公开工程案例。
+- 两份更新后的 PDF 在 `static/cv/`；下载地址由 `data/portfolio.yaml` 各语言的 `resume` 字段管理。打印版 HTML `/cv/zh/`、`/cv/en/` 从相同数据生成，修改资料后可通过浏览器“保存为 PDF”（A4、无页眉页脚）更新对应静态文件。上传的原始旧简历不进入公开目录。
+- 公开经历只含 OPPO 正式工作和阿里云实习，不包含其他实习或原简历中的电话、微信、年龄等资料。OPPO 仅展示已提供的职位、部门和入职时间。
+- 页面 `<html lang>`、分享元信息和 `hreflang` 与个人简介语言一致；Pagefind 从页面语言自动生成中文和英文索引，不再强制将所有内容当作中文。
+- 入口与个人简介共用 `static/css/portfolio.css`；博客继续使用 `main.css`、`home.css` 和原有渐进增强脚本。
+
 ## 快速开始
 
 项目使用 Node.js `22.17.0` 和 Hugo Extended `0.161.1`（Hugo 已在 `0.166.0+extended` 验证）。先安装依赖：
@@ -34,14 +46,14 @@ npm run preview:search
 
 ## 配置与替换
 
-- 首页顶部展示“今日灵感”：浏览器按本地日期从[一言语句接口](https://developer.hitokoto.cn/sentence/)获取一句话，成功后缓存在本机至次日；接口不可用、禁用 JavaScript 或离线时显示仓库内的静态寄语。页面只用 `textContent` 插入接口文本，不把外部内容当 HTML 执行。
-- 全站采用彩色光晕背景和半透明玻璃卡片；配色与模糊程度集中在 `static/css/main.css` 的设计变量及 `.hero`、`.card` 等样式中。
+- 博客顶部展示“今日灵感”：浏览器按本地日期从[一言语句接口](https://developer.hitokoto.cn/sentence/)获取一句话，成功后缓存在本机至次日；接口不可用、禁用 JavaScript 或离线时显示仓库内的静态寄语。页面只用 `textContent` 插入接口文本，不把外部内容当 HTML 执行。
+- 博客及阅读页面采用彩色光晕背景和半透明玻璃卡片；配色与模糊程度集中在 `static/css/main.css` 的设计变量及 `.hero`、`.card` 等样式中。
 - 站点标题、规范域名、RSS/Sitemap、菜单和 SEO 参数在 `hugo.yaml`。
-- 左侧个人资料的姓名、头像和个性签名分别由 `params.author`、`params.avatar`、`params.signature` 配置；默认 `static/images/avatar.svg` 是字形占位头像，替换为自己的照片后同步更新 `params.avatar`。头像角上的状态标志由 `params.status.emoji` 和 `params.status.text` 控制，例如 `😊 / 开心`、`😢 / 难过`、`🏖️ / 休假中`、`🧋 / 喝奶茶中`；改动配置并重新部署即可让所有访客看到新状态。
+- 个人简介中的姓名、头像和个性签名分别由 `params.author`、`params.avatar`、`params.signature` 配置；默认 `static/images/avatar.svg` 是字形占位头像，替换为自己的照片后同步更新 `params.avatar`。个人简介生活板块的状态标志由 `params.status.emoji` 和 `params.status.text` 控制，例如 `😊 / 开心`、`😢 / 难过`、`🏖️ / 休假中`、`🧋 / 喝奶茶中`；改动配置并重新部署即可让所有访客看到新状态。
 - `params.email`、`params.github`、`params.resume` 和 `params.defaultImage` 请在发布前检查并替换为真实公开信息。
-- 首页布局在 `themes/along/layouts/home.html`；通用元信息在 `themes/along/layouts/_partials/head.html`。
-- 首页采用“左侧整合栏 + 双列文章瀑布流”：搜索、最近更新、分类、标签和“现在”集中在左侧，文章详情页继续保留右侧目录。首页专用样式和排列逻辑分别在 `static/css/home.css`、`static/js/home.js`；手机端文章按时间顺序单列显示，辅助信息放在列表下方。禁用 JavaScript 时仍可阅读普通网格卡片。
-- 首页封面优先使用文章的 `cover` 字段（已发布的图片地址）；没有该字段时，识别正文中带 `banner` 标记的图片，例如 `![banner banner-fade](/images/published/你的图片.png)`。普通插图不会被当作封面，有封面的卡片会自然增高；原文图片仍保留。相对图片路径以文章地址为基准，推荐使用同步脚本生成的 `/images/published/...` 路径。
+- 网站入口布局在 `themes/along/layouts/home.html`，博客布局在 `themes/along/layouts/blog/list.html`，个人简介布局在 `themes/along/layouts/about.html`；通用元信息在 `themes/along/layouts/_partials/head.html`。
+- 博客采用“左侧整合栏 + 双列文章瀑布流”：搜索、最近更新、分类、标签和“现在”集中在左侧，文章详情页继续保留右侧目录。首页专用样式和排列逻辑分别在 `static/css/home.css`、`static/js/home.js`；手机端文章按时间顺序单列显示，辅助信息放在列表下方。禁用 JavaScript 时仍可阅读普通网格卡片。
+- 博客封面优先使用文章的 `cover` 字段（已发布的图片地址）；没有该字段时，识别正文中带 `banner` 标记的图片，例如 `![banner banner-fade](/images/published/你的图片.png)`。普通插图不会被当作封面，有封面的卡片会自然增高；原文图片仍保留。相对图片路径以文章地址为基准，推荐使用同步脚本生成的 `/images/published/...` 路径。
 - 文章页采用高不透明度的阅读面板，正文排版集中在 `static/css/article.css`，代码高亮配色在 `static/css/syntax.css`；外层侧栏与背景继续使用 `main.css` 的玻璃样式。桌面文章目录显示在右侧，较窄屏幕可在正文顶部展开目录。代码块提供语言标识和复制按钮，宽表格在自身区域横向滚动。
 - 文章放在 `content/writing/`，项目放在 `content/projects/`。每篇文章建议提供 `title`、`description`、`date`、`categories` 和 `tags`。
 - 示例文章和项目已清理；新的公开文章由 `content:sync` 写入 `content/writing/`，项目可按需添加到 `content/projects/`。
@@ -66,7 +78,7 @@ weight: 10
 这里写项目背景、功能和进展。
 ```
 
-保存后项目会出现在 Projects 页面；首页有项目时会自动显示“精选项目”。`featured: true` 表示优先展示在首页，`weight` 数字越小越靠前；如果没有项目标记为精选，首页会展示前 4 个项目。可运行 `npm run dev` 本地预览。
+保存后项目会出现在 Projects 页面；个人简介有项目时会自动显示“精选项目”。`featured: true` 表示优先展示在个人简介，`weight` 数字越小越靠前；如果没有项目标记为精选，个人简介会展示前 3 个项目。可运行 `npm run dev` 本地预览。
 
 项目直接由网站仓库发布，不走 Obsidian 的 `content:sync` 流程；放进 `content/projects/` 就会公开，`public: false` 不能用来隐藏项目。
 

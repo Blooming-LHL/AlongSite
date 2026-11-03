@@ -1,0 +1,11 @@
+{{ $context := partial "profile-context.html" . }}{{ $ui := $context.ui }}
+{{ $aboutURL := "about/" }}{{ if eq $context.lang "en" }}{{ $aboutURL = "en/about/" }}{{ end }}
+<header class="p-header" data-pagefind-ignore>
+  <a class="p-wordmark" href="{{ "" | relURL }}" aria-label="ALong · {{ $ui.home_label }}">{{ site.Params.author }}<span aria-hidden="true">＋</span></a>
+  <nav class="p-nav" aria-label="{{ $ui.nav_label }}">
+    <a href="{{ $aboutURL | relURL }}"{{ if eq .Layout "about" }} aria-current="page"{{ end }}>{{ $ui.about }}{{ if ne $context.lang "en" }} <span>About</span>{{ end }}</a>
+    <a href="{{ "blog/" | relURL }}">{{ $ui.blog }} <span>↗</span></a>
+  </nav>
+  {{ if eq .Layout "about" }}<nav class="profile-language" aria-label="{{ $ui.language_label }}"><a href="{{ "about/" | relURL }}" lang="zh-CN" hreflang="zh-CN"{{ if eq $context.lang "zh" }} aria-current="page"{{ end }}>中文</a><span aria-hidden="true">/</span><a href="{{ "en/about/" | relURL }}" lang="en" hreflang="en"{{ if eq $context.lang "en" }} aria-current="page"{{ end }}>EN</a></nav>{{ end }}
+  <a class="p-header-contact" href="mailto:{{ site.Params.email }}">{{ $ui.contact }} <span aria-hidden="true">↗</span></a>
+</header>

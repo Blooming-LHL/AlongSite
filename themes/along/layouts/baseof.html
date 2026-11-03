@@ -1,25 +1,33 @@
 <!doctype html>
-<html lang="{{ site.Language.Locale | default "zh-CN" }}">
+<html lang="{{ if eq .Params.profile_language "en" }}en{{ else }}{{ site.Language.Locale | default "zh-CN" }}{{ end }}">
   <head>
     {{ partial "head.html" . }}
   </head>
-  <body>
-    <a class="skip-link" href="#main-content">跳到主要内容</a>
-    <div class="site-layout{{ if .IsHome }} site-layout-home{{ end }}">
+  {{ $portfolio := or .IsHome (eq .Layout "about") }}
+  {{ $blog := eq .Section "blog" }}
+  <body{{ if $portfolio }} class="portfolio-page{{ if .IsHome }} entry-page{{ end }}"{{ end }}>
+    <a class="skip-link" href="#main-content">{{ if eq .Params.profile_language "en" }}Skip to main content{{ else }}跳到主要内容{{ end }}</a>
+    {{ if $portfolio }}
+    {{ partial "portfolio-header.html" . }}
+    <main id="main-content" class="portfolio-main">{{ template "main" . }}</main>
+    {{ partial "portfolio-footer.html" . }}
+    {{ else }}
+    <div class="site-layout{{ if $blog }} site-layout-home{{ end }}">
       <aside class="site-sidebar site-sidebar-left" aria-label="个人导航" data-pagefind-ignore>
         {{ partial "header.html" . }}
       </aside>
-      <main id="main-content" class="site-main">{{ block "main" . }}{{ end }}</main>
-      {{ if .IsHome }}
+      <main id="main-content" class="site-main">{{ template "main" . }}</main>
+      {{ if $blog }}
       <aside class="home-sidebar-information" aria-label="站点信息" data-pagefind-ignore>
         {{ partial "sidebar-information.html" . }}
       </aside>
       <div class="sidebar-links home-sidebar-links" data-pagefind-ignore>{{ partial "social-links.html" . }}</div>
       {{ end }}
-      {{ if not .IsHome }}<aside class="site-sidebar site-sidebar-right" aria-label="站点信息" data-pagefind-ignore>
+      {{ if not $blog }}<aside class="site-sidebar site-sidebar-right" aria-label="站点信息" data-pagefind-ignore>
         {{ partial "right-sidebar.html" . }}
       </aside>{{ end }}
     </div>
     {{ partial "footer.html" . }}
+    {{ end }}
   </body>
 </html>

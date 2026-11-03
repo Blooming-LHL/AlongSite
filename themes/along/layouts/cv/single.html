@@ -1,0 +1,11 @@
+{{- $context := partial "profile-context.html" . -}}{{- $profile := $context.profile -}}{{- $ui := $context.ui -}}
+<!doctype html>
+<html lang="{{ $ui.lang }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,follow"><title>{{ .Title }}</title><link rel="stylesheet" href="{{ "css/cv.css" | relURL }}"></head>
+<body><main class="cv-sheet">
+<header><h1>{{ $profile.name }}<span>ALong / {{ $profile.role }}</span></h1><p>{{ site.Params.email }} · <a href="{{ site.Params.github }}">github.com/Blooming-LHL</a></p><p>{{ $profile.intro }}</p></header>
+<section><h2>{{ $ui.experience_title }}</h2>{{ range $profile.experience }}<article class="cv-item"><div class="cv-item-heading"><h3>{{ .organization }} · {{ .title }}</h3><span>{{ .period }}</span></div></article>{{ end }}</section>
+<section><h2>{{ $ui.projects_title }}</h2>{{ range $profile.projects }}<article class="cv-project"><div class="cv-item-heading"><h3>{{ .title }}</h3><span>{{ .status }} · {{ if eq $context.lang "en" }}Alibaba Cloud{{ else }}阿里云{{ end }}</span></div><p><strong>{{ $ui.contribution }}: </strong>{{ .contribution }}</p><p><strong>{{ $ui.outcome }}: </strong>{{ .outcome }}</p><p class="cv-stack">{{ delimit .stack " · " }}</p></article>{{ end }}</section>
+<section><h2>{{ $ui.education_title }}</h2>{{ range $profile.education }}<article class="cv-item"><div class="cv-item-heading"><h3>{{ .organization }} · {{ .title }}</h3><span>{{ .period }}</span></div><p>{{ .description }}</p></article>{{ end }}<p class="cv-research"><strong>{{ $ui.research_title }}: </strong>{{ range $i, $item := $profile.research }}{{ if $i }}; {{ end }}{{ .value }} {{ .title }} ({{ .detail }}){{ end }}.</p></section>
+<section><h2>{{ $ui.skills_title }}</h2>{{ range $profile.skills }}<p class="cv-skill"><strong>{{ .title }}:</strong> {{ delimit .items " / " }}. {{ .description }}</p>{{ end }}</section>
+<footer><a href="{{ if eq $context.lang "en" }}{{ "en/about/" | absURL }}{{ else }}{{ "about/" | absURL }}{{ end }}">{{ if eq $context.lang "en" }}Online profile{{ else }}在线个人简介{{ end }}</a></footer>
+</main></body></html>

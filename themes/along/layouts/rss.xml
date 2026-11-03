@@ -1,6 +1,8 @@
 {{- $pages := .RegularPages -}}
 {{- if .IsHome -}}
   {{- $pages = where site.RegularPages "Section" "in" (slice "writing" "projects") -}}
+{{- else if eq .Section "blog" -}}
+  {{- $pages = where site.RegularPages "Section" "writing" -}}
 {{- else if eq .Kind "section" -}}
   {{- $pages = .RegularPagesRecursive -}}
 {{- end -}}

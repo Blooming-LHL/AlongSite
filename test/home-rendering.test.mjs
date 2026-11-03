@@ -16,6 +16,8 @@ try { execFileSync(hugo, ['version'], { stdio: 'ignore' }); } catch { hugoAvaila
 let tempRoot;
 let publicDir;
 let home;
+let entry;
+let about;
 let article;
 let section;
 const options = { skip: !hugoAvailable && 'Hugo is not installed; skipping integration render' };
@@ -29,6 +31,9 @@ before(async () => {
   const content = path.join(tempRoot, 'content');
   publicDir = path.join(tempRoot, 'public');
   await fs.mkdir(path.join(content, 'writing', 'engineering'), { recursive: true });
+  await fs.mkdir(path.join(content, 'blog'), { recursive: true });
+  await write(content, 'blog/_index.md', page('title: Blog'));
+  await write(content, 'about.md', page('title: About\nlayout: about'));
   await write(content, '_index.md', page('title: Home'));
   await write(content, 'now.md', page('title: Now\ndescription: Building a calmer internet.'));
   await write(path.join(content, 'writing'), '_index.md', page('title: Writing'));
@@ -57,14 +62,16 @@ before(async () => {
     '--source', root, '--contentDir', content, '--destination', publicDir, '--quiet',
   ], { cwd: root });
   const read = (file) => fs.readFile(path.join(publicDir, file), 'utf8');
-  home = await read('index.html');
+  home = await read('blog/index.html');
+  entry = await read('index.html');
+  about = await read('about/index.html');
   article = await read('writing/engineering/newest/index.html');
   section = await read('writing/engineering/index.html');
 });
 
 after(async () => { if (tempRoot) await fs.rm(tempRoot, { recursive: true, force: true }); });
 
-test('homepage has one left-rail information set and no right rail', options, () => {
+test('blog has one left-rail information set and no right rail', options, () => {
   assert.match(home, /class="site-layout site-layout-home"/);
   assert.doesNotMatch(home, /site-sidebar-right|right-sidebar-inner|article-toc/);
   assert.equal((home.match(/id="recent-heading"/g) || []).length, 1);
@@ -75,7 +82,7 @@ test('homepage has one left-rail information set and no right rail', options, ()
   assert.equal((home.match(/href="\/search\/"/g) || []).length, 1);
 });
 
-test('homepage keeps helper regions after main in rendered DOM and grid placement', options, async () => {
+test('blog keeps helper regions after main in rendered DOM and grid placement', options, async () => {
   const regions = [
     '<aside class="site-sidebar site-sidebar-left"',
     '<main id="main-content"',
@@ -95,7 +102,7 @@ test('homepage keeps helper regions after main in rendered DOM and grid placemen
   assert.match(css, /@media \(max-width: 700px\)[\s\S]*?\.site-layout-home \.home-sidebar-links\s*\{[^}]*grid-row:\s*4;/s);
 });
 
-test('home and article assets are layout-specific', options, () => {
+test('blog and article assets are layout-specific', options, () => {
   assert.match(home, /href="\/css\/home\.css"/);
   assert.match(home, /src="\/js\/home\.js"/);
   assert.doesNotMatch(home, /href="\/css\/article\.css"|src="\/js\/article\.js"/);
@@ -105,7 +112,7 @@ test('home and article assets are layout-specific', options, () => {
   assert.doesNotMatch(section, /href="\/css\/home\.css"|src="\/js\/home\.js"/);
 });
 
-test('home article cards are chronological and preserve card cover rules', options, () => {
+test('blog article cards are chronological and preserve card cover rules', options, () => {
   const titles = [...home.matchAll(/class="card-content"[\s\S]*?<h3><a[^>]*>([^<]+)<\/a>/g)].map((m) => m[1]);
   assert.deepEqual(titles.slice(0, 4), ['Newest &amp; safest', 'Relative cover', 'Body banner', 'Plain card']);
   const cards = [...home.matchAll(/<article class="card article-card(?: card-has-cover)?">[\s\S]*?<\/article>/g)].map((m) => m[0]);
@@ -130,7 +137,7 @@ test('article keeps desktop TOC and right sidebar', options, () => {
   assert.match(article, /id="TableOfContents-mobile"/);
 });
 
-test('homepage CSS keeps helper blocks below main content on mobile without sticky rail', options, async () => {
+test('blog CSS keeps helper blocks below main content on mobile without sticky rail', options, async () => {
   const css = await fs.readFile(path.join(root, 'static/css/home.css'), 'utf8');
   assert.match(css, /@media \(max-width: 700px\)/);
   assert.match(css, /\.site-layout-home \{[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
@@ -138,7 +145,33 @@ test('homepage CSS keeps helper blocks below main content on mobile without stic
   assert.doesNotMatch(css, /\.site-layout-home[^{]*\{[^}]*position:\s*sticky/);
 });
 
-test('homepage quote uses the widened hero instead of the old 590px text column', async () => {
+test('blog quote uses the widened hero instead of the old 590px text column', async () => {
   const css = await fs.readFile(path.join(root, 'static/css/home.css'), 'utf8');
   assert.match(css, /\.site-layout-home \.hero-quote\s*\{[^}]*max-width:\s*none;[^}]*width:\s*100%;[^}]*text-wrap:\s*wrap;/s);
+});
+
+
+test('entry routes visitors to about or the preserved blog feed', options, () => {
+  assert.match(entry, /class="entry-choice entry-choice-about" href="\/about\/"/);
+  assert.match(entry, /class="entry-choice entry-choice-blog" href="\/blog\/"/);
+  assert.doesNotMatch(entry, /article-grid|daily-note-quote/);
+  assert.match(entry, /href="\/css\/portfolio\.css"/);
+  assert.doesNotMatch(entry, /href="\/css\/home\.css"|src="\/js\/home\.js"/);
+  assert.doesNotMatch(home, /profile-avatar|profile-signature|profile-status/);
+});
+
+test('about exposes professional identity and working recruiter navigation', options, () => {
+  assert.match(about, /id="profile-heading">AI Engineer/);
+  for (const id of ['overview', 'projects', 'experience', 'education', 'skills', 'cv', 'contact']) {
+    assert.match(about, new RegExp(`href="#${id}"`));
+    assert.match(about, new RegExp(`id="${id}"`));
+  }
+  assert.match(about, /LLM Applications/);
+  assert.match(about, /Multi-agent Systems/);
+  assert.match(about, /Backend Engineering/);
+  assert.match(about, /profile-status-inline/);
+  assert.match(about, /href="mailto:1458169154@qq\.com"/);
+  assert.match(about, /href="\/cv\/liang-henglong-zh\.pdf" download/);
+  assert.doesNotMatch(about, /your-name|hello@example\.com|你的名字|待补充|待上传/);
+  assert.doesNotMatch(about, /article-shell|article-toc|article\.js/);
 });

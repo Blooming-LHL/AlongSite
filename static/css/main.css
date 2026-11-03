@@ -180,3 +180,7 @@ img { max-width: 100%; height: auto; }
   .page-header { margin-bottom: 28px; }
   .footer-inner { width: min(calc(100% - 28px), var(--max)); align-items: flex-start; flex-direction: column; }
 }
+
+.blog-brand { display: block; font-size: 28px; font-weight: 750; text-decoration: none; }
+.blog-brand span { color: var(--accent); }
+.blog-brand small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }

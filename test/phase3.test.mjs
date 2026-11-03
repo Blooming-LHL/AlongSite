@@ -11,7 +11,8 @@ test('production build runs Hugo before the pinned CJK-capable Pagefind CLI', as
   const pkg = JSON.parse(await read('package.json'));
   assert.equal(pkg.devDependencies.pagefind, '1.5.2');
   assert.match(pkg.scripts['build:hugo'], /--cleanDestinationDir/);
-  assert.equal(pkg.scripts['build:search'], 'pagefind --site public --force-language zh');
+  assert.equal(pkg.scripts['build:search'], 'pagefind --site public');
+  assert.doesNotMatch(pkg.scripts['build:search'], /force-language/);
   assert.match(pkg.scripts['preview:search'], /pagefind .* --serve/);
   assert.equal(pkg.scripts.build, 'npm run build:hugo && npm run build:search');
 });
@@ -36,13 +37,15 @@ test('Netlify uses reproducible Hugo and Node versions', async () => {
   assert.match(netlify, /NODE_VERSION = "22\.17\.0"/);
 });
 
-test('sidebar status is configurable and navigation has mouse and keyboard glass states', async () => {
+test('personal status moves to about and blog navigation retains keyboard states', async () => {
   const config = await read('hugo.yaml');
   const header = await read('themes/along/layouts/_partials/header.html');
   const css = await read('static/css/main.css');
+  const about = await read('themes/along/layouts/about.html');
   assert.match(config, /status:\s*\n\s*emoji:/);
-  assert.match(header, /site\.Params\.status/);
-  assert.match(header, /profile-status/);
+  assert.match(about, /site\.Params\.status/);
+  assert.doesNotMatch(header, /profile-avatar|profile-signature/);
+  assert.match(about, /profile-status-inline/);
   assert.match(css, /\.profile-status \{[^}]*width: 46px; height: 46px;[^}]*border-radius: 50%/);
   assert.match(css, /\.nav-list a\[aria-current="page"\] \{[^}]*background: linear-gradient[^}]*box-shadow:/);
   assert.match(css, /\.nav-list a:is\(:hover, :focus-visible\)/);
