@@ -1,0 +1,99 @@
+name: Build and deploy personal preview
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: personal-preview
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.17.0'
+          cache: npm
+      - name: Install pinned Hugo Extended
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(tr -d '\r\n' < .hugo-version)
+          archive="hugo_extended_${version}_linux-amd64.tar.gz"
+          temp=$(mktemp -d)
+          trap 'rm -rf "$temp"' EXIT
+          cd "$temp"
+          release="https://github.com/gohugoio/hugo/releases/download/v${version}"
+          curl --fail --silent --show-error --location "$release/$archive" -o "$archive"
+          curl --fail --silent --show-error --location "$release/hugo_${version}_checksums.txt" -o checksums.txt
+          awk -v name="$archive" '$2 == name {print $1 "  " $2}' checksums.txt > selected-checksum.txt
+          test -s selected-checksum.txt
+          sha256sum --check selected-checksum.txt
+          tar -xzf "$archive" hugo
+          mkdir -p "$RUNNER_TEMP/alongsite-bin"
+          install -m 755 hugo "$RUNNER_TEMP/alongsite-bin/hugo"
+          echo "$RUNNER_TEMP/alongsite-bin" >> "$GITHUB_PATH"
+      - run: npm ci
+      - name: Build static website
+        env:
+          PREVIEW_URL: ${{ vars.PERSONAL_PREVIEW_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "$PREVIEW_URL" ]]; then
+            node -e 'const u=new URL(process.env.PREVIEW_URL); if(!["https:","http:"].includes(u.protocol)||u.username||u.password||u.search||u.hash||u.pathname!=="/") process.exit(1)'
+            export HUGO_BASEURL="${PREVIEW_URL%/}/"
+          fi
+          npm run build
+      - name: Publish to personal server
+        if: vars.PERSONAL_PREVIEW_ENABLED == 'true'
+        env:
+          SSH_HOST: ${{ vars.PERSONAL_SERVER_HOST }}
+          SSH_USER: ${{ vars.PERSONAL_SERVER_USER }}
+          SSH_PORT: ${{ vars.PERSONAL_SERVER_PORT }}
+          DEPLOY_ROOT: ${{ vars.PERSONAL_DEPLOY_ROOT }}
+          PREVIEW_URL: ${{ vars.PERSONAL_PREVIEW_URL }}
+          SSH_PRIVATE_KEY: ${{ secrets.PERSONAL_SERVER_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.PERSONAL_SERVER_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${SSH_HOST:?Set PERSONAL_SERVER_HOST}" "${SSH_USER:?Set PERSONAL_SERVER_USER}"
+          : "${SSH_PRIVATE_KEY:?Set PERSONAL_SERVER_SSH_KEY}" "${SSH_KNOWN_HOSTS:?Set PERSONAL_SERVER_KNOWN_HOSTS}"
+          : "${PREVIEW_URL:?Set PERSONAL_PREVIEW_URL}"
+          SSH_PORT=${SSH_PORT:-22}
+          DEPLOY_ROOT=${DEPLOY_ROOT:-/srv/alongsite-preview}
+          [[ "$SSH_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]]
+          [[ "$SSH_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
+          [[ "$SSH_PORT" =~ ^[0-9]+$ && "$SSH_PORT" -ge 1 && "$SSH_PORT" -le 65535 ]]
+          [[ "$DEPLOY_ROOT" =~ ^/[a-zA-Z0-9_./-]+$ && "$DEPLOY_ROOT" != / && "$DEPLOY_ROOT" != *'/../'* && "$DEPLOY_ROOT" != */.. ]]
+          key_dir=$(mktemp -d)
+          trap 'rm -rf "$key_dir"' EXIT
+          chmod 700 "$key_dir"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$key_dir/key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$key_dir/known_hosts"
+          chmod 600 "$key_dir/key" "$key_dir/known_hosts"
+          unset SSH_PRIVATE_KEY SSH_KNOWN_HOSTS
+          ssh-keygen -y -f "$key_dir/key" > /dev/null
+          options=(-i "$key_dir/key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$key_dir/known_hosts" -o ConnectTimeout=15)
+          target="$SSH_USER@$SSH_HOST"
+          remote_dir=$(ssh "${options[@]}" -p "$SSH_PORT" "$target" 'mktemp -d /tmp/alongsite-preview.XXXXXX')
+          [[ "$remote_dir" =~ ^/tmp/alongsite-preview\.[a-zA-Z0-9]+$ ]]
+          tar -czf "$key_dir/site.tar.gz" -C public .
+          scp "${options[@]}" -P "$SSH_PORT" "$key_dir/site.tar.gz" scripts/deploy-preview.sh "$target:$remote_dir/"
+          ssh "${options[@]}" -p "$SSH_PORT" "$target" "bash '$remote_dir/deploy-preview.sh' '$remote_dir/site.tar.gz' '$DEPLOY_ROOT' '$GITHUB_SHA'"
+          ssh "${options[@]}" -p "$SSH_PORT" "$target" "rm -rf -- '$remote_dir'"
+          curl --fail --silent --show-error --max-time 20 "${PREVIEW_URL%/}/deployment.json?commit=$GITHUB_SHA" -o "$key_dir/deployment.json"
+          node -e 'const fs=require("node:fs");if(JSON.parse(fs.readFileSync(process.argv[1])).commit!==process.env.GITHUB_SHA)throw new Error("Preview is not serving this commit")' "$key_dir/deployment.json"
+          printf '### Personal preview ready\n\n[Open preview](%s)\n\nCommit: `%s`\n' "$PREVIEW_URL" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - name: Explain first-time setup
+        if: vars.PERSONAL_PREVIEW_ENABLED != 'true'
+        run: echo 'Website build passed. Server publication is not configured yet; follow docs/personal-preview.md.' >> "$GITHUB_STEP_SUMMARY"
