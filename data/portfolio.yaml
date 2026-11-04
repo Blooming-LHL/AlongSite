@@ -1,7 +1,8 @@
 # Public profile. Facts from the supplied 2025 résumé and the author's current-role update.
-# OPPO start date and responsibilities have not been supplied; do not infer them.
+# OPPO start date is author-confirmed (2026.07); no responsibilities have been supplied.
 zh:
   name: "梁恒龙"
+  profile_intro: "我的技术背景包括 LLM 应用、多智能体系统与后端工程。"
   role: "AI Engineer"
   specialization: "Applied AI Engineering"
   stage: "OPPO · 企业 AI 部"
@@ -19,6 +20,7 @@ zh:
     - period: "2025.05 — 2025.09"
       title: "基础平台研发工程师（实习）"
       organization: "阿里云"
+      department: "数据库产品部"
       kind: "实习"
       bullets:
         - "参与 DBStack 售前资源规划系统，集成安装 dry-run 模式，结合 KWOK 虚拟集群与原生调度器模拟部署资源需求。"
@@ -116,6 +118,7 @@ zh:
   signature: "持续发疯ing"
 en:
   name: "Henglong Liang"
+  profile_intro: "My background spans LLM applications, multi-agent systems, and backend engineering."
   role: "AI Engineer"
   specialization: "Applied AI Engineering"
   stage: "OPPO · Enterprise AI"
@@ -133,6 +136,7 @@ en:
     - period: "May — Sep 2025"
       title: "Infrastructure Software Engineer Intern"
       organization: "Alibaba Cloud"
+      department: "Database Products Department"
       kind: "Internship"
       bullets:
         - "Contributed to DBStack's presales resource planning system by integrating a dry-run mode into installation code and simulating deployment resource requirements with KWOK and the native Kubernetes scheduler."

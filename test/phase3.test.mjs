@@ -37,16 +37,10 @@ test('Netlify uses reproducible Hugo and Node versions', async () => {
   assert.match(netlify, /NODE_VERSION = "22\.17\.0"/);
 });
 
-test('personal status moves to about and blog navigation retains keyboard states', async () => {
-  const config = await read('hugo.yaml');
+test('blog navigation retains mouse and keyboard glass states', async () => {
   const header = await read('themes/along/layouts/_partials/header.html');
   const css = await read('static/css/main.css');
-  const about = await read('themes/along/layouts/_partials/profile-body.html');
-  assert.match(config, /status:\s*\n\s*emoji:/);
-  assert.match(about, /site\.Params\.status/);
   assert.doesNotMatch(header, /profile-avatar|profile-signature/);
-  assert.match(about, /portrait-status/);
-  assert.match(css, /\.profile-status \{[^}]*width: 46px; height: 46px;[^}]*border-radius: 50%/);
   assert.match(css, /\.nav-list a\[aria-current="page"\] \{[^}]*background: linear-gradient[^}]*box-shadow:/);
   assert.match(css, /\.nav-list a:is\(:hover, :focus-visible\)/);
   assert.match(css, /\.nav-list:has\(a:is\(:hover, :focus-visible\)\)/);

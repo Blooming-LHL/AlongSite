@@ -153,7 +153,7 @@ test('blog quote uses the widened hero instead of the old 590px text column', as
 
 test('home is an English profile with blog links and no choice cards', options, () => {
   assert.match(entry, /<html lang="en">/);
-  assert.match(entry, /id="profile-heading">AI Engineer/);
+  assert.match(entry, /id="profile-heading">Henglong Liang/);
   assert.match(entry, /href="\/blog\/"/);
   assert.doesNotMatch(entry, /entry-choice|article-grid|daily-note-quote/);
   assert.match(entry, /href="\/css\/portfolio\.css"/);
@@ -161,17 +161,17 @@ test('home is an English profile with blog links and no choice cards', options, 
   assert.doesNotMatch(home, /portrait-wrap|profile-signature/);
 });
 
-test('profile navigation only targets populated sections and reserved sections are empty', options, () => {
+test('profile has only the header blog link, a valid experience anchor, and empty reserved sections', options, () => {
   for (const html of [entry,about]) {
-    for (const id of ['overview','blog','experience','education']) {
-      assert.match(html,new RegExp(`href="#${id}"`));
-      assert.match(html,new RegExp(`id="${id}"`));
-    }
+    for (const id of ['overview','experience','education']) assert.match(html,new RegExp(`id="${id}"`));
+    assert.match(html,/href="#experience"/);
+    assert.equal((html.match(/href="\/blog\/"/g)||[]).length,1);
+    assert.doesNotMatch(html,/href="#blog"|profile-index|profile-blog-card/);
     for (const id of ['projects','skills','cv']) {
       assert.match(html,new RegExp(`id="${id}"`));
       assert.doesNotMatch(html,new RegExp(`href="#${id}"`));
     }
-    assert.match(html,/portrait-status/);
+    assert.match(html,/profile-photo-placeholder/);
     assert.doesNotMatch(html,/mailto:|download|contact-section|work-card|skills-table|article-shell|article-toc|article\.js/);
   }
 });

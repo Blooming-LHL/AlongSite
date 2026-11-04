@@ -10,11 +10,12 @@
 
 - `/` 直接展示英文个人简介；顶部只有身份标识、`My Blog` 和 `EN / 中文`。中文入口为 `/cn/about`，普通链接切换不依赖 JavaScript。
 - `/blog/` 保留每日寄语、文章瀑布流、分类和标签。博客导航中的“个人主页”返回 `/`；原有文章、分类、搜索与 RSS 地址不变。
-- 简介首屏和独立的 My Blog 玻璃卡片均可进入博客。章节索引只导航到概览、博客入口、工作经历和教育背景。
-- 个人介绍、OPPO 正式工作、阿里云实习、教育背景和研究概况保留已确认事实。`data/portfolio.yaml` 管理双语资料，`data/profile_ui.yaml` 管理界面文案。
+- 个人简介首屏以姓名、AI Engineer、当前任职和独立照片区呈现身份；工作与教育以开放排版展示。顶部 My Blog 是简介中唯一的博客入口，左侧目录、首屏重复按钮和正文博客卡片均已移除。
+- OPPO 正式工作与阿里云实习仅输出时间、职位、公司和部门。阿里云部门为“数据库产品部 / Database Products Department”；不再输出具体工作、项目指标或获奖说明，Research 统计也不再渲染。原始工作、研究与项目资料仍保存在数据文件中，教育信息不作无关改写。`data/portfolio.yaml` 管理双语资料，`data/profile_ui.yaml` 管理界面文案。
 - Selected Work、Technical Skills、Résumé 只显示低高度的章节标题，不输出条目、技能标签或下载按钮。简介页头、正文、页脚均不提供邮箱、GitHub 或联系入口；博客既有联系方式保留。
 - 项目和技能原始数据仍在仓库，未删除。`static/cv/` PDF 及 `/cv/zh/`、`/cv/en/` 打印页也仍可通过原地址访问；本轮只暂停简介入口，没有撤回这些公开资源。
-- 首页和中文简介共用 `themes/along/layouts/_partials/profile-body.html`。`static/css/portfolio.css` 复用博客公共颜色与字体，使用更淡的背景和相同的紫色玻璃交互；阅读面板、瀑布流算法和文章交互保持原样。
+- 首页和中文简介共用 `themes/along/layouts/_partials/profile-body.html`。`static/css/portfolio.css` 采用近白背景、克制的页头玻璃、明确的紫色博客按钮；桌面使用文字与照片两列，手机使用单列。阅读面板、瀑布流算法和文章交互保持原样。
+- `hugo.yaml` 的 `params.profile_photo` 管理真实照片路径，例如 `/images/portrait.jpg`（文件放在 `static/images/portrait.jpg`）。未填写时显示中性 4:5 预留框，没有伪造人像或破损图片。接入照片后使用固定宽高、`object-fit: cover` 与有意义的替代文本。`profile_intro` 是简介专用短文案，不覆盖 CV 使用的原始 `intro`。
 - `/en/about/` 兼容至英文首页；旧 `/about/` 兼容至 `/cn/about`。Netlify 配置 301；静态本地预览提供无 JavaScript 也可工作的兼容跳转页。Nginx 的对应规则已纳入站点模板与初始化/端口迁移脚本。
 - 已初始化的个人服务器需要在网页终端重新应用一次最新 `scripts/set-preview-port.sh 8081`，才能获得服务器级 301 和 `/cn/about` 无尾斜杠路由；源码推送不会自动修改需要 root 权限的 Nginx 配置。参见 [个人服务器自动预览](docs/personal-preview.md)。
 - 两版简介分别进入 Pagefind 的英文、中文索引；旧地址跳转页、CV 打印页、重复导航与留白模块不参与索引。

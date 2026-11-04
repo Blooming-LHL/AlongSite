@@ -57,6 +57,8 @@ zh:
     projects: 精选项目
     skills: 技术能力
     cv: 简历
+  photo_placeholder: 梁恒龙的个人照片预留区域
+  photo_caption: 个人照片
 en:
   lang: en
   locale: en_US
@@ -118,3 +120,5 @@ en:
     projects: Selected Work
     skills: Technical Skills
     cv: Résumé
+  photo_placeholder: Reserved space for a portrait of Henglong Liang
+  photo_caption: PORTRAIT

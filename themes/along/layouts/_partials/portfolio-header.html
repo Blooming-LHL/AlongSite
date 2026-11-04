@@ -1,6 +1,6 @@
 {{ $context := partial "profile-context.html" . }}{{ $ui := $context.ui }}
 <header class="p-header" data-pagefind-ignore>
   <a class="p-wordmark" href="{{ "" | relURL }}" aria-label="ALong · {{ $ui.home_label }}">{{ site.Params.author }}<span aria-hidden="true">。</span></a>
-  <nav class="p-nav" aria-label="{{ $ui.nav_label }}"><a href="{{ "blog/" | relURL }}">{{ $ui.blog }} <span aria-hidden="true">↗</span></a></nav>
+  <nav class="p-nav" aria-label="{{ $ui.nav_label }}"><a class="profile-blog-button" href="{{ "blog/" | relURL }}">{{ $ui.blog }} <span aria-hidden="true">↗</span></a></nav>
   <nav class="profile-language" aria-label="{{ $ui.language_label }}"><a href="{{ "" | relURL }}" lang="en" hreflang="en"{{ if eq $context.lang "en" }} aria-current="page"{{ end }}>EN</a><span aria-hidden="true">/</span><a href="{{ "cn/about" | relURL }}" lang="zh-CN" hreflang="zh-CN"{{ if eq $context.lang "zh" }} aria-current="page"{{ end }}>中文</a></nav>
 </header>
