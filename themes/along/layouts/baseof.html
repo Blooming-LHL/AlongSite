@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="{{ if eq .Params.profile_language "en" }}en{{ else }}{{ site.Language.Locale | default "zh-CN" }}{{ end }}">
+<html lang="{{ if or .IsHome (eq .Params.profile_language "en") }}en{{ else }}{{ site.Language.Locale | default "zh-CN" }}{{ end }}">
   <head>
     {{ partial "head.html" . }}
   </head>
   {{ $portfolio := or .IsHome (eq .Layout "about") }}
   {{ $blog := eq .Section "blog" }}
-  <body{{ if $portfolio }} class="portfolio-page{{ if .IsHome }} entry-page{{ end }}"{{ end }}>
-    <a class="skip-link" href="#main-content">{{ if eq .Params.profile_language "en" }}Skip to main content{{ else }}跳到主要内容{{ end }}</a>
+  <body{{ if $portfolio }} class="portfolio-page"{{ end }}>
+    <a class="skip-link" href="#main-content">{{ if or .IsHome (eq .Params.profile_language "en") }}Skip to main content{{ else }}跳到主要内容{{ end }}</a>
     {{ if $portfolio }}
     {{ partial "portfolio-header.html" . }}
     <main id="main-content" class="portfolio-main">{{ template "main" . }}</main>

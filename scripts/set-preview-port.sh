@@ -18,7 +18,24 @@ render_preview_port() {
     grep -Eq '^[[:space:]]*listen[[:space:]]+[0-9]+;[[:space:]]*$' "$source" || {
       echo 'Expected exactly one numeric AlongSite listener' >&2; return 1;
     }
-  sed -E "s/^([[:space:]]*listen[[:space:]]+)[0-9]+;[[:space:]]*$/\1$port;/" "$source" > "$destination"
+  if grep -Fq '# AlongSite profile routes' "$source"; then
+    sed -E "s/^([[:space:]]*listen[[:space:]]+)[0-9]+;[[:space:]]*$/\1$port;/" "$source" > "$destination"
+  else
+    # Existing installations also receive the profile redirects when reapplied.
+    grep -Eq '^[[:space:]]*index[[:space:]]+index.html;' "$source" || {
+      echo 'Expected an AlongSite index directive' >&2; return 1;
+    }
+    sed -E "s/^([[:space:]]*listen[[:space:]]+)[0-9]+;[[:space:]]*$/\1$port;/" "$source" | awk '
+      { print }
+      /^[[:space:]]*index[[:space:]]+index.html;/ {
+        print "    # AlongSite profile routes"
+        print "    location ~ ^/en/about/?$ { return 301 /; }"
+        print "    location ~ ^/about/?$ { return 301 /cn/about; }"
+        print "    location = /cn/about { try_files /cn/about/index.html =404; }"
+        print "    location = /cn/about/ { return 301 /cn/about; }"
+      }
+    ' > "$destination"
+  fi
 }
 main() {
   local port=${1:-8081}

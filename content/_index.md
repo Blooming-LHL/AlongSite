@@ -1,4 +1,5 @@
 ---
-title: "ALong · Engineering & everyday life"
-description: "你好，我是 ALong。了解我的 AI Engineering 方向，或阅读我的技术与生活记录。"
+title: "Henglong Liang · AI Engineer"
+description: "Henglong Liang (ALong), AI Engineer in OPPO's Enterprise AI Department. Background, experience, education, and personal writing."
+profile_language: en
 ---

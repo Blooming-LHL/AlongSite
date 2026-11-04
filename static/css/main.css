@@ -8,7 +8,7 @@
   --sage: #e4d6ff;
   --max: 1420px;
   --serif: "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "DejaVu Sans", "PingFang SC", sans-serif;
   --glass-shadow: 0 18px 44px rgba(73, 56, 143, .13), inset 0 1px 0 rgba(255, 255, 255, .9), inset 0 -1px 0 rgba(255, 255, 255, .3);
 }
 * { box-sizing: border-box; }

@@ -151,27 +151,27 @@ test('blog quote uses the widened hero instead of the old 590px text column', as
 });
 
 
-test('entry routes visitors to about or the preserved blog feed', options, () => {
-  assert.match(entry, /class="entry-choice entry-choice-about" href="\/about\/"/);
-  assert.match(entry, /class="entry-choice entry-choice-blog" href="\/blog\/"/);
-  assert.doesNotMatch(entry, /article-grid|daily-note-quote/);
+test('home is an English profile with blog links and no choice cards', options, () => {
+  assert.match(entry, /<html lang="en">/);
+  assert.match(entry, /id="profile-heading">AI Engineer/);
+  assert.match(entry, /href="\/blog\/"/);
+  assert.doesNotMatch(entry, /entry-choice|article-grid|daily-note-quote/);
   assert.match(entry, /href="\/css\/portfolio\.css"/);
   assert.doesNotMatch(entry, /href="\/css\/home\.css"|src="\/js\/home\.js"/);
-  assert.doesNotMatch(home, /profile-avatar|profile-signature|profile-status/);
+  assert.doesNotMatch(home, /portrait-wrap|profile-signature/);
 });
 
-test('about exposes professional identity and working recruiter navigation', options, () => {
-  assert.match(about, /id="profile-heading">AI Engineer/);
-  for (const id of ['overview', 'projects', 'experience', 'education', 'skills', 'cv', 'contact']) {
-    assert.match(about, new RegExp(`href="#${id}"`));
-    assert.match(about, new RegExp(`id="${id}"`));
+test('profile navigation only targets populated sections and reserved sections are empty', options, () => {
+  for (const html of [entry,about]) {
+    for (const id of ['overview','blog','experience','education']) {
+      assert.match(html,new RegExp(`href="#${id}"`));
+      assert.match(html,new RegExp(`id="${id}"`));
+    }
+    for (const id of ['projects','skills','cv']) {
+      assert.match(html,new RegExp(`id="${id}"`));
+      assert.doesNotMatch(html,new RegExp(`href="#${id}"`));
+    }
+    assert.match(html,/portrait-status/);
+    assert.doesNotMatch(html,/mailto:|download|contact-section|work-card|skills-table|article-shell|article-toc|article\.js/);
   }
-  assert.match(about, /LLM Applications/);
-  assert.match(about, /Multi-agent Systems/);
-  assert.match(about, /Backend Engineering/);
-  assert.match(about, /profile-status-inline/);
-  assert.match(about, /href="mailto:1458169154@qq\.com"/);
-  assert.match(about, /href="\/cv\/liang-henglong-zh\.pdf" download/);
-  assert.doesNotMatch(about, /your-name|hello@example\.com|你的名字|待补充|待上传/);
-  assert.doesNotMatch(about, /article-shell|article-toc|article\.js/);
 });

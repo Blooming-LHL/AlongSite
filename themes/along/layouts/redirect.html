@@ -1,0 +1,2 @@
+{{- $destination := .Params.redirect_to | default "/" -}}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0; url={{ $destination | relURL }}"><link rel="canonical" href="{{ $destination | absURL }}"><title>{{ .Title }}</title></head><body data-pagefind-ignore><main><p>This profile has moved to the home page.</p><a href="{{ $destination | relURL }}">Continue to the profile →</a></main></body></html>

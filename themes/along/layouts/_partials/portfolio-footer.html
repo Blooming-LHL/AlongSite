@@ -1,5 +1,2 @@
 {{ $context := partial "profile-context.html" . }}{{ $ui := $context.ui }}
-<footer class="p-footer" data-pagefind-ignore>
-  <p>© {{ now.Year }} {{ site.Params.author }}<span>{{ $ui.footer_note }}</span></p>
-  <div><a href="{{ site.Params.github }}" rel="noopener noreferrer">GitHub ↗</a><a href="{{ "blog/" | relURL }}">{{ $ui.blog }} ↗</a><a href="#main-content">{{ $ui.back_top }}</a></div>
-</footer>
+<footer class="p-footer" data-pagefind-ignore><p>© {{ now.Year }} {{ site.Params.author }}<span>{{ $ui.footer_note }}</span></p><a href="#main-content">{{ $ui.back_top }}</a></footer>

@@ -6,17 +6,18 @@
 
 已提供 GitHub Actions 构建与发布流程，详见 [个人服务器自动预览](docs/personal-preview.md)。首次完成服务器和 GitHub 凭据配置后，推送 `main` 即可更新个人服务器，工作电脑只需使用浏览器。默认只构建，尚未启用服务器发布。
 
-## 双入口与个人简介
+## 个人主页与博客
 
-- `/` 是“个人简介 / 我的博客”双入口，采用暖白底、深色文字和朱红强调色。
-- `/about/` 是求职导向的个人简介，首屏展示 AI Engineer 定位，提供 Projects、Experience、Education、Technical Skills、CV 和 Contact 锚点。
-- `/blog/` 复用原首页的每日寄语、文章瀑布流、分类和标签。头像、个人简介与生活状态已移入个人简介页。原有文章、分类、搜索地址保持不变。
-- `data/portfolio.yaml` 的 `zh` / `en` 分别管理两版真实资料；`data/profile_ui.yaml` 管理 UI 翻译。中文在 `/about/`，英文在 `/en/about/`，使用普通链接切换，禁用 JavaScript 时仍可访问。博客继续使用中文。
-- `content/about.md` 和 `content/about-en.md` 声明两版页面。精选项目来自个人资料数据中的阿里云实习项目，展示个人贡献、项目成果及实际架构。`content/projects/` 继续保存其他公开工程案例。
-- 两份更新后的 PDF 在 `static/cv/`；下载地址由 `data/portfolio.yaml` 各语言的 `resume` 字段管理。打印版 HTML `/cv/zh/`、`/cv/en/` 从相同数据生成，修改资料后可通过浏览器“保存为 PDF”（A4、无页眉页脚）更新对应静态文件。上传的原始旧简历不进入公开目录。
-- 公开经历只含 OPPO 正式工作和阿里云实习，不包含其他实习或原简历中的电话、微信、年龄等资料。OPPO 仅展示已提供的职位、部门和入职时间。
-- 页面 `<html lang>`、分享元信息和 `hreflang` 与个人简介语言一致；Pagefind 从页面语言自动生成中文和英文索引，不再强制将所有内容当作中文。
-- 入口与个人简介共用 `static/css/portfolio.css`；博客继续使用 `main.css`、`home.css` 和原有渐进增强脚本。
+- `/` 直接展示英文个人简介；顶部只有身份标识、`My Blog` 和 `EN / 中文`。中文入口为 `/cn/about`，普通链接切换不依赖 JavaScript。
+- `/blog/` 保留每日寄语、文章瀑布流、分类和标签。博客导航中的“个人主页”返回 `/`；原有文章、分类、搜索与 RSS 地址不变。
+- 简介首屏和独立的 My Blog 玻璃卡片均可进入博客。章节索引只导航到概览、博客入口、工作经历和教育背景。
+- 个人介绍、OPPO 正式工作、阿里云实习、教育背景和研究概况保留已确认事实。`data/portfolio.yaml` 管理双语资料，`data/profile_ui.yaml` 管理界面文案。
+- Selected Work、Technical Skills、Résumé 只显示低高度的章节标题，不输出条目、技能标签或下载按钮。简介页头、正文、页脚均不提供邮箱、GitHub 或联系入口；博客既有联系方式保留。
+- 项目和技能原始数据仍在仓库，未删除。`static/cv/` PDF 及 `/cv/zh/`、`/cv/en/` 打印页也仍可通过原地址访问；本轮只暂停简介入口，没有撤回这些公开资源。
+- 首页和中文简介共用 `themes/along/layouts/_partials/profile-body.html`。`static/css/portfolio.css` 复用博客公共颜色与字体，使用更淡的背景和相同的紫色玻璃交互；阅读面板、瀑布流算法和文章交互保持原样。
+- `/en/about/` 兼容至英文首页；旧 `/about/` 兼容至 `/cn/about`。Netlify 配置 301；静态本地预览提供无 JavaScript 也可工作的兼容跳转页。Nginx 的对应规则已纳入站点模板与初始化/端口迁移脚本。
+- 已初始化的个人服务器需要在网页终端重新应用一次最新 `scripts/set-preview-port.sh 8081`，才能获得服务器级 301 和 `/cn/about` 无尾斜杠路由；源码推送不会自动修改需要 root 权限的 Nginx 配置。参见 [个人服务器自动预览](docs/personal-preview.md)。
+- 两版简介分别进入 Pagefind 的英文、中文索引；旧地址跳转页、CV 打印页、重复导航与留白模块不参与索引。
 
 ## 快速开始
 
@@ -53,7 +54,7 @@ npm run preview:search
 - 博客顶部展示“今日灵感”：浏览器按本地日期从[一言语句接口](https://developer.hitokoto.cn/sentence/)获取一句话，成功后缓存在本机至次日；接口不可用、禁用 JavaScript 或离线时显示仓库内的静态寄语。页面只用 `textContent` 插入接口文本，不把外部内容当 HTML 执行。
 - 博客及阅读页面采用彩色光晕背景和半透明玻璃卡片；配色与模糊程度集中在 `static/css/main.css` 的设计变量及 `.hero`、`.card` 等样式中。
 - 站点标题、规范域名、RSS/Sitemap、菜单和 SEO 参数在 `hugo.yaml`。
-- 个人简介中的姓名、头像和个性签名分别由 `params.author`、`params.avatar`、`params.signature` 配置；默认 `static/images/avatar.svg` 是字形占位头像，替换为自己的照片后同步更新 `params.avatar`。个人简介生活板块的状态标志由 `params.status.emoji` 和 `params.status.text` 控制，例如 `😊 / 开心`、`😢 / 难过`、`🏖️ / 休假中`、`🧋 / 喝奶茶中`；改动配置并重新部署即可让所有访客看到新状态。
+- 简介姓名和状态文字使用 `data/portfolio.yaml` 的对应语言资料，身份标识及头像分别由 `params.author`、`params.avatar` 配置；默认 `static/images/avatar.svg` 是字形占位头像，替换为自己的照片后同步更新 `params.avatar`。个人简介生活板块的状态标志由 `params.status.emoji` 和 `params.status.text` 控制，例如 `😊 / 开心`、`😢 / 难过`、`🏖️ / 休假中`、`🧋 / 喝奶茶中`；改动配置并重新部署即可让所有访客看到新状态。
 - `params.email`、`params.github`、`params.resume` 和 `params.defaultImage` 请在发布前检查并替换为真实公开信息。
 - 网站入口布局在 `themes/along/layouts/home.html`，博客布局在 `themes/along/layouts/blog/list.html`，个人简介布局在 `themes/along/layouts/about.html`；通用元信息在 `themes/along/layouts/_partials/head.html`。
 - 博客采用“左侧整合栏 + 双列文章瀑布流”：搜索、最近更新、分类、标签和“现在”集中在左侧，文章详情页继续保留右侧目录。首页专用样式和排列逻辑分别在 `static/css/home.css`、`static/js/home.js`；手机端文章按时间顺序单列显示，辅助信息放在列表下方。禁用 JavaScript 时仍可阅读普通网格卡片。
@@ -82,7 +83,7 @@ weight: 10
 这里写项目背景、功能和进展。
 ```
 
-保存后项目会出现在 Projects 页面；个人简介有项目时会自动显示“精选项目”。`featured: true` 表示优先展示在个人简介，`weight` 数字越小越靠前；如果没有项目标记为精选，个人简介会展示前 3 个项目。可运行 `npm run dev` 本地预览。
+保存后项目会出现在独立的 Projects 列表中；`weight` 数字越小越靠前。`featured` 数据可保留供后续恢复精选展示使用，当前个人简介按方案暂停输出项目明细。可运行 `npm run dev` 本地预览。
 
 项目直接由网站仓库发布，不走 Obsidian 的 `content:sync` 流程；放进 `content/projects/` 就会公开，`public: false` 不能用来隐藏项目。
 
@@ -114,7 +115,7 @@ npm ci
 npm run build
 ```
 
-Hugo 会先清理并重新生成 `public/`，Pagefind 随后把中文索引写入 `public/pagefind/`。导航、页脚、首页、列表页、搜索页和 404 不进入索引，避免重复结果；搜索脚本与样式也不会进入首页首屏。
+Hugo 会先清理并重新生成 `public/`，Pagefind 随后把中文索引写入 `public/pagefind/`。个人简介首页与中文简介各进入对应语言索引；导航、页脚、留白模块、旧地址兼容页、列表页、搜索页和 404 不进入索引，避免重复结果；搜索界面脚本与样式也不会进入首页首屏。
 
 仓库根目录的 `netlify.toml` 已配置构建命令、发布目录、Node/Hugo 固定版本和 404 fallback。连接 Netlify 时选择 GitHub 仓库和 `main` 生产分支即可；Pull Request 的 Deploy Preview 需在 Netlify 项目设置中启用。
 

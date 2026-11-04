@@ -54,12 +54,9 @@ params:
 
 menu:
   main:
-    - name: "网站入口"
+    - name: "个人主页"
       pageRef: "/"
       weight: 10
-    - name: "个人简介"
-      pageRef: "/about"
-      weight: 20
     - name: "我的博客"
       pageRef: "/blog"
       weight: 30

@@ -13,6 +13,7 @@ server {
     listen 80;
     server_name 42.193.226.154;
     root /srv/alongsite-preview/current;
+    index index.html;
     location / { try_files $uri $uri/ =404; }
 }
 `;
@@ -24,10 +25,17 @@ async function fixture(t,source=config) {
   const render=port=>exec('bash',['-c','source "$1"; render_preview_port "$2" "$3" "$4"','bash',script,input,output,String(port)]);
   return {input,output,render};
 }
-test('port migration changes only the managed listener and preserves site contents',async t=>{
+test('port migration preserves site contents and adds profile routes once',async t=>{
   const {input,output,render}=await fixture(t);
   await render(8081);
-  assert.equal(await fs.readFile(output,'utf8'),config.replace('listen 80;','listen 8081;'));
+  const updated=await fs.readFile(output,'utf8');
+  assert.ok(updated.includes('listen 8081;'));
+  assert.ok(updated.includes('location ~ ^/en/about/?$ { return 301 /; }'));
+  assert.ok(updated.includes('location = /cn/about { try_files /cn/about/index.html =404; }'));
+  assert.ok(updated.includes('location / { try_files $uri $uri/ =404; }'));
+  const twice=path.join(path.dirname(output),'twice.conf');
+  await exec('bash',['-c','source "$1"; render_preview_port "$2" "$3" 8081','bash',script,output,twice]);
+  assert.equal(await fs.readFile(twice,'utf8'),updated);
   assert.equal(await fs.readFile(input,'utf8'),config);
 });
 test('migration refuses unrelated or multi-listener configurations',async t=>{

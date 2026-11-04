@@ -1,15 +1,17 @@
+{{- $canonical := .Permalink -}}
+{{- if and (eq .Layout "about") (eq .Params.profile_language "zh") }}{{ $canonical = "cn/about" | absURL }}{{ end -}}
 {{- $description := site.Params.description -}}
 {{- with .Description }}{{ $description = . }}{{ end -}}
 {{- $pageTitle := printf "%s · %s" .Title site.Title -}}
-{{- if .IsHome }}{{ $pageTitle = site.Title }}{{ end -}}
+
 {{- $image := site.Params.defaultImage -}}
 {{- with .Params.cover }}{{ $image = . }}{{ end -}}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="{{ $description }}">
 <meta name="author" content="{{ site.Params.author }}">
-<meta name="theme-color" content="{{ if or .IsHome (eq .Layout "about") }}#f7f6f2{{ else }}#f3f1ff{{ end }}">
-<link rel="canonical" href="{{ .Permalink }}">
+<meta name="theme-color" content="#f3f1ff">
+<link rel="canonical" href="{{ $canonical }}">
 <title>{{ $pageTitle }}</title>
 <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
 <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
@@ -17,16 +19,16 @@
 {{ if or .IsHome (eq .Layout "about") }}<link rel="stylesheet" href="{{ "css/portfolio.css" | relURL }}">{{ end }}
 {{ if and .IsPage (ne .Layout "about") }}<link rel="stylesheet" href="{{ "css/article.css" | relURL }}"><link rel="stylesheet" href="{{ "css/syntax.css" | relURL }}"><script src="{{ "js/article.js" | relURL }}" defer></script>{{ end }}
 {{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ site.Title }} RSS" href="{{ .Permalink }}">{{ end }}
-{{ if eq .Layout "about" }}
-<link rel="alternate" hreflang="zh-CN" href="{{ "about/" | absURL }}">
-<link rel="alternate" hreflang="en" href="{{ "en/about/" | absURL }}">
-<link rel="alternate" hreflang="x-default" href="{{ "about/" | absURL }}">
+{{ if or .IsHome (eq .Layout "about") }}
+<link rel="alternate" hreflang="zh-CN" href="{{ "cn/about" | absURL }}">
+<link rel="alternate" hreflang="en" href="{{ "" | absURL }}">
+<link rel="alternate" hreflang="x-default" href="{{ "" | absURL }}">
 {{ end }}
-<meta property="og:locale" content="{{ if eq .Params.profile_language "en" }}en_US{{ else }}zh_CN{{ end }}">
+<meta property="og:locale" content="{{ if or .IsHome (eq .Params.profile_language "en") }}en_US{{ else }}zh_CN{{ end }}">
 <meta property="og:type" content="{{ if and .IsPage (ne .Layout "about") }}article{{ else }}website{{ end }}">
 <meta property="og:title" content="{{ $pageTitle }}">
 <meta property="og:description" content="{{ $description }}">
-<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:url" content="{{ $canonical }}">
 <meta property="og:site_name" content="{{ site.Title }}">
 <meta property="og:image" content="{{ $image | absURL }}">
 {{ if and .IsPage (not .Date.IsZero) }}<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ end }}

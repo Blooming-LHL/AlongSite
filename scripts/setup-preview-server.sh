@@ -81,6 +81,13 @@ server {
     server_name $public_ip;
     root /srv/alongsite-preview/current;
     index index.html;
+
+    # AlongSite profile routes
+    location ~ ^/en/about/?$ { return 301 /; }
+    location ~ ^/about/?$ { return 301 /cn/about; }
+    location = /cn/about { try_files /cn/about/index.html =404; }
+    location = /cn/about/ { return 301 /cn/about; }
+
     add_header Cache-Control "no-cache" always;
     location / { try_files \$uri \$uri/ =404; }
     location = /deployment.json {

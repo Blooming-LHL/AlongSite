@@ -1,7 +1,8 @@
 ---
-title: "Henglong Liang · AI Engineer"
-description: "Henglong Liang (ALong), AI Engineer at OPPO Enterprise AI. Explore Alibaba Cloud internship projects, LLM agents, education, technical skills, and CV."
+title: "Profile has moved"
 url: "/en/about/"
-layout: about
-profile_language: en
+layout: redirect
+redirect_to: "/"
+sitemap:
+  disable: true
 ---

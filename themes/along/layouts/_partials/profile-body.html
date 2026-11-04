@@ -1,0 +1,37 @@
+{{ $context := partial "profile-context.html" . }}
+{{ $profile := $context.profile }}{{ $ui := $context.ui }}
+<div class="profile-layout">
+  <aside class="profile-index" aria-label="{{ $ui.index_label }}" data-pagefind-ignore>
+    <p class="index-label">{{ $ui.on_this_page }}</p>
+    <nav>{{ range $i, $id := slice "overview" "blog" "experience" "education" }}<a href="#{{ $id }}"><span>0{{ $i }}</span>{{ index $ui.sections $id }}</a>{{ end }}</nav>
+    <p class="index-note">{{ $ui.curiosity }}</p>
+  </aside>
+  <article class="profile-content" data-pagefind-body>
+    <section class="profile-hero" id="overview" aria-labelledby="profile-heading">
+      <div class="profile-person">
+        <span class="portrait-wrap"><img src="{{ site.Params.avatar | relURL }}" alt="{{ $profile.name }}" width="88" height="88">{{ with site.Params.status }}<span class="portrait-status" aria-hidden="true">{{ .emoji }}</span>{{ end }}</span>
+        <div><p class="profile-name">{{ $profile.name }}<span> / ALong</span></p><p class="profile-status-text">{{ $profile.personal_status }}</p></div>
+      </div>
+      <p class="profile-role-note">{{ $profile.specialization }}</p>
+      <h1 id="profile-heading">{{ $profile.role }}<span class="profile-period">.</span></h1>
+      <p class="profile-intro">{{ $profile.intro }}</p>
+      <div class="profile-actions" data-pagefind-ignore><a class="profile-button profile-button-primary" href="{{ "blog/" | relURL }}">{{ $ui.blog }} <span aria-hidden="true">↗</span></a><a class="profile-button" href="#experience">{{ $ui.experience_title }} <span aria-hidden="true">↓</span></a></div>
+      <p class="profile-human">{{ index $profile.personal 0 }}</p>
+    </section>
+    <section class="profile-blog-section" id="blog" aria-labelledby="blog-heading" data-pagefind-ignore>
+      <a class="profile-blog-card" href="{{ "blog/" | relURL }}">
+        <div><p class="profile-eyebrow">{{ $ui.blog_kicker }}</p><h2 id="blog-heading">{{ $ui.blog }}</h2><p class="profile-blog-description">{{ $ui.blog_description }}</p><span class="profile-blog-cta">{{ $ui.blog_cta }} <span aria-hidden="true">→</span></span></div><span class="profile-blog-arrow" aria-hidden="true">↗</span>
+      </a>
+    </section>
+    <section class="profile-section" id="experience" aria-labelledby="experience-heading">
+      <header class="profile-section-heading"><p class="profile-eyebrow">02 / EXPERIENCE</p><h2 id="experience-heading">{{ $ui.experience_title }}</h2></header>
+      {{ range $profile.experience }}<div class="resume-row"><div class="resume-period">{{ .period }}<span>{{ .kind }}</span></div><div><h3>{{ .title }}</h3><p class="resume-organization">{{ .organization }}</p>{{ with .bullets }}<ul class="resume-bullets">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}</div></div>{{ end }}
+    </section>
+    <section class="profile-section" id="education" aria-labelledby="education-heading">
+      <header class="profile-section-heading"><p class="profile-eyebrow">03 / EDUCATION</p><h2 id="education-heading">{{ $ui.education_title }}</h2></header>
+      {{ range $profile.education }}<div class="resume-row"><div class="resume-period">{{ .period }}</div><div><h3>{{ .title }}</h3><p class="resume-organization">{{ .organization }}</p><p class="resume-description">{{ .description }}</p></div></div>{{ end }}
+      <div class="profile-research"><h3>{{ $ui.research_title }}</h3><ul>{{ range $profile.research }}<li><span class="research-count">{{ .value }}</span><div><strong>{{ .title }}</strong><p>{{ .detail }}</p></div></li>{{ end }}</ul></div>
+    </section>
+    {{ range $id := slice "projects" "skills" "cv" }}<section class="profile-reserved" id="{{ $id }}" aria-labelledby="{{ $id }}-heading" data-pagefind-ignore><h2 id="{{ $id }}-heading">{{ index $ui.reserved $id }}</h2></section>{{ end }}
+  </article>
+</div>

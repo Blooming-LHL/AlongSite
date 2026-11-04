@@ -6,73 +6,80 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
-
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const hugo = process.env.HUGO_BIN || 'hugo';
-let available = true;
-try { execFileSync(hugo, ['version'], { stdio: 'ignore' }); } catch { available = false; }
-const options = { skip: !available && 'Hugo is not installed' };
-let output;
-let zh;
-let en;
-let cvZh;
-let cvEn;
-
-before(async () => {
-  if (!available) return;
-  output = await fs.mkdtemp(path.join(os.tmpdir(), 'along-bilingual-profile-'));
-  await promisify(execFile)(hugo, ['--source', root, '--destination', output, '--quiet']);
-  const read = file => fs.readFile(path.join(output, file), 'utf8');
-  [zh, en, cvZh, cvEn] = await Promise.all(['about/index.html', 'en/about/index.html', 'cv/zh/index.html', 'cv/en/index.html'].map(read));
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const hugo=process.env.HUGO_BIN||'hugo';
+let available=true;
+try {execFileSync(hugo,['version'],{stdio:'ignore'});} catch {available=false;}
+const options={skip:!available&&'Hugo is not installed'};
+let output,zh,en,legacy,cvZh,cvEn,sitemap;
+before(async()=>{
+  if(!available)return;
+  output=await fs.mkdtemp(path.join(os.tmpdir(),'along-profile-v2-'));
+  await promisify(execFile)(hugo,['--source',root,'--destination',output,'--quiet']);
+  const read=file=>fs.readFile(path.join(output,file),'utf8');
+  [zh,en,legacy,cvZh,cvEn,sitemap]=await Promise.all(['cn/about/index.html','index.html','en/about/index.html','cv/zh/index.html','cv/en/index.html','sitemap.xml'].map(read));
 });
-after(async () => { if (output) await fs.rm(output, { recursive: true, force: true }); });
+after(async()=>{if(output)await fs.rm(output,{recursive:true,force:true});});
 
-test('both native-language routes have reciprocal switches and localized metadata', options, () => {
-  assert.match(zh, /<html lang="zh-CN">/);
-  assert.match(en, /<html lang="en">/);
-  assert.match(en, /<meta property="og:locale" content="en_US">/);
-  assert.match(en, /<link rel="canonical" href="https:\/\/alongsite\.netlify\.app\/en\/about\/">/);
-  for (const html of [zh, en]) {
-    assert.match(html, /hreflang="zh-CN" href="https:\/\/alongsite\.netlify\.app\/about\/"/);
-    assert.match(html, /hreflang="en" href="https:\/\/alongsite\.netlify\.app\/en\/about\/"/);
-    assert.match(html, /href="\/about\/" lang="zh-CN" hreflang="zh-CN"/);
-    assert.match(html, /href="\/en\/about\/" lang="en" hreflang="en"/);
-    for (const id of ['overview', 'projects', 'experience', 'education', 'skills', 'cv', 'contact']) {
-      assert.match(html, new RegExp(`href="#${id}"`));
-      assert.match(html, new RegExp(`id="${id}"`));
+test('root English and Chinese profiles have reciprocal native links and accurate metadata',options,()=>{
+  assert.match(en,/<html lang="en">/);
+  assert.match(zh,/<html lang="zh-CN">/);
+  assert.match(en,/<link rel="canonical" href="https:\/\/alongsite\.netlify\.app\/">/);
+  assert.match(zh,/<link rel="canonical" href="https:\/\/alongsite\.netlify\.app\/cn\/about">/);
+  assert.match(en,/<meta property="og:locale" content="en_US">/);
+  for(const html of [zh,en]) {
+    assert.match(html,/hreflang="zh-CN" href="https:\/\/alongsite\.netlify\.app\/cn\/about"/);
+    assert.match(html,/hreflang="en" href="https:\/\/alongsite\.netlify\.app\/"/);
+    assert.match(html,/hreflang="x-default" href="https:\/\/alongsite\.netlify\.app\/"/);
+    assert.match(html,/href="\/" lang="en" hreflang="en"/);
+    assert.match(html,/href="\/cn\/about" lang="zh-CN" hreflang="zh-CN"/);
+    assert.doesNotMatch(html,/entry-choice|mailto:|1458169154|github\.com|download|href="#contact"|href="#cv"|href="#projects"|href="#skills"/);
+    const header=html.match(/<header class="p-header"[\s\S]*?<\/header>/)[0];
+    assert.equal((header.match(/<a /g)||[]).length,4); // Identity, blog, two language links.
+    assert.doesNotMatch(header,/>About</);
+  }
+  assert.match(en,/hreflang="en" aria-current="page">EN/);
+  assert.match(zh,/hreflang="zh-CN" aria-current="page">中文/);
+  assert.doesNotMatch(en.replace(/<[^>]+>/g,'').replaceAll('中文',''),/[\u3400-\u9fff]/);
+});
+
+test('confirmed experience and education remain while reserved sections output headings only',options,()=>{
+  for(const html of [zh,en]) {
+    assert.match(html,/OPPO/);
+    assert.match(html,/阿里云|Alibaba Cloud/);
+    assert.doesNotMatch(html,/心潮|Shopify|13432003979|lhl1458169154|待补充|待上传|Coming soon|work-card|skills-table|project-architecture/);
+    for(const id of ['projects','skills','cv']) {
+      const section=html.match(new RegExp(`<section class="profile-reserved" id="${id}"[\\s\\S]*?<\\/section>`))[0];
+      assert.match(section,/data-pagefind-ignore/);
+      assert.equal((section.match(/<h2 /g)||[]).length,1);
+      assert.doesNotMatch(section,/<a |<p>|<ul|<button|<img/);
     }
   }
-  assert.match(zh, /hreflang="zh-CN" aria-current="page">中文/);
-  assert.match(en, /hreflang="en" aria-current="page">EN/);
-  const englishText = en.replace(/<[^>]+>/g, '').replaceAll('中文', '');
-  assert.doesNotMatch(englishText, /[\u3400-\u9fff]/, 'English copy must not fall back to Chinese UI or biography');
+  assert.match(zh,/2026\.07 — 至今/);
+  assert.match(en,/Jul 2026 — Present/);
+  assert.match(en,/May — Sep 2025/);
+  assert.match(zh,/中山大学/);
+  assert.match(en,/Sun Yat-sen University/);
+  assert.match(en,/South China University of Technology/);
 });
 
-test('public profile and printable CV retain only the requested experience', options, () => {
-  for (const html of [zh, en, cvZh, cvEn]) {
-    assert.match(html, /OPPO/);
-    assert.match(html, /阿里云|Alibaba Cloud/);
-    assert.doesNotMatch(html, /心潮|Shopify|Klarna|13432003979|lhl1458169154|24岁|待补充|待上传/);
-  }
-  assert.match(zh, /2026\.07 — 至今/);
-  assert.match(en, /Jul 2026 — Present/);
-  assert.match(en, /May — Sep 2025/);
-  assert.match(zh, /中山大学/);
-  assert.match(en, /Sun Yat-sen University/);
-  assert.match(en, /South China University of Technology/);
-  assert.match(zh, /从数小时缩短至数分钟/);
-  assert.match(en, /from hours to minutes/);
-  assert.doesNotMatch(en, /granted patents|production users|millions of users/i);
+test('legacy English is an unindexed compatibility page rather than duplicate profile content',options,async()=>{
+  assert.match(legacy,/http-equiv="refresh" content="0; url=\/"/);
+  assert.match(legacy,/<meta name="robots" content="noindex,follow">/);
+  assert.match(legacy,/href="\/">Continue to the profile/);
+  assert.doesNotMatch(legacy,/data-pagefind-body|OPPO|profile-heading/);
+  assert.doesNotMatch(sitemap,/\/en\/about\//);
+  const config=await fs.readFile(path.join(root,'netlify.toml'),'utf8');
+  assert.match(config,/from = "\/en\/about\/"\s+to = "\/"\s+status = 301/);
+  assert.ok(config.indexOf('from = "/en/about/"')<config.indexOf('from = "/*"'));
 });
 
-test('both CV downloads resolve to actual updated PDFs with localized HTML equivalents', options, async () => {
-  for (const [lang, html] of [['zh', zh], ['en', en]]) {
-    assert.match(html, new RegExp(`href="/cv/liang-henglong-${lang}\\.pdf" download`));
-    const file = await fs.readFile(path.join(output, 'cv', `liang-henglong-${lang}.pdf`));
-    assert.equal(file.subarray(0, 5).toString(), '%PDF-');
-    assert.ok(file.length > 10000);
+test('CV resources remain directly available but are absent from personal profile UI',options,async()=>{
+  for(const lang of ['zh','en']) {
+    const pdf=await fs.readFile(path.join(output,'cv',`liang-henglong-${lang}.pdf`));
+    assert.equal(pdf.subarray(0,5).toString(),'%PDF-');
   }
-  assert.match(cvEn, /<html lang="en">/);
-  assert.match(cvZh, /<html lang="zh-CN">/);
-  assert.doesNotMatch(cvEn + cvZh, /data-pagefind-body/);
+  assert.match(cvEn,/OPPO/); assert.match(cvZh,/阿里云/);
+  assert.doesNotMatch(cvEn+cvZh,/data-pagefind-body/);
+  assert.doesNotMatch(en+zh,/href="\/cv\//);
 });
