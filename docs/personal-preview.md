@@ -52,7 +52,7 @@ Codex 云环境修改源码 → 推送 GitHub main
 
 ## 腾讯云轻量服务器：本次接入
 
-目标服务器公网地址为 `42.193.226.154`，目前没有网站或域名。可先使用 `http://42.193.226.154/` 作为浏览器预览入口；真正发布成功之前，这个地址不代表已经可用。
+目标服务器公网地址为 `42.193.226.154`，目前没有网站或域名。可先使用 `http://42.193.226.154:8081/` 作为浏览器预览入口；真正发布成功之前，这个地址不代表已经可用。
 
 腾讯云提供无需安装本地客户端的 OrcaTerm 网页登录：在[轻量应用服务器控制台](https://console.cloud.tencent.com/lighthouse/instance/index)找到目标实例，点击“登录”，进入网页终端。参见[官方 OrcaTerm 登录文档](https://cloud.tencent.cn/document/product/1207/44642)。如果一键登录不可用，官方也提供[浏览器 VNC 登录](https://cloud.tencent.com/document/product/1207/46824)。
 
@@ -66,7 +66,7 @@ ss -ltn
 
 确认操作系统后再安装适合它的 Nginx 包、准备目录与部署公钥。仓库已提供 `deploy/nginx-preview.conf`，使用独立站点名和 IP Host 匹配，不需要先购买域名。安装前应先检查已有 Nginx 配置，保留现有服务。
 
-服务器侧准备完成后，在实例的“防火墙”中确认 HTTP（TCP 80）允许浏览器访问，并允许 GitHub 执行器访问实际 SSH 端口。保留已有管理规则，不要覆盖整套规则；如果服务器已启用操作系统防火墙，也需确认相应端口。参见[腾讯云防火墙文档](https://cloud.tencent.com/document/product/1207/44577/)。
+服务器侧准备完成后，在实例的“防火墙”中确认 TCP 8081允许浏览器访问，并允许 GitHub 执行器访问实际 SSH 端口。保留已有管理规则，不要覆盖整套规则；如果服务器已启用操作系统防火墙，也需确认相应端口。参见[腾讯云防火墙文档](https://cloud.tencent.com/document/product/1207/44577/)。
 
 本次仓库 Variables 可使用：
 
@@ -75,24 +75,24 @@ PERSONAL_SERVER_HOST=42.193.226.154
 PERSONAL_SERVER_USER=<初始化后确认的部署用户>
 PERSONAL_SERVER_PORT=22
 PERSONAL_DEPLOY_ROOT=/srv/alongsite-preview
-PERSONAL_PREVIEW_URL=http://42.193.226.154/
+PERSONAL_PREVIEW_URL=http://42.193.226.154:8081/
 PERSONAL_PREVIEW_ENABLED=true
 ```
 
-最后一项仅在服务器站点、目录、公钥和 GitHub Secrets 都准备好后启用。当前没有向服务器执行任何命令，也没有设置任何凭据。
+最后一项仅在服务器站点、目录、公钥和 GitHub Secrets 都准备好后启用。这些配置值不包含凭据；实际初始化和发布状态以服务器及 Actions 输出为准。
 
 
 ## Ubuntu 24.04 的初始化脚本
 
-已根据本次服务器确认的信息（Ubuntu 24.04、root 网页终端、80 端口空闲）提供 `scripts/setup-preview-server.sh`。在服务器网页终端执行，不在工作电脑执行：
+已根据本次服务器确认的信息（Ubuntu 24.04、root 网页终端、独立预览端口默认为 8081）提供 `scripts/setup-preview-server.sh`。在服务器网页终端执行，不在工作电脑执行：
 
 ```bash
 curl -fL --retry 2 --connect-timeout 15 --max-time 120 https://raw.githubusercontent.com/Blooming-LHL/AlongSite/main/scripts/setup-preview-server.sh -o /tmp/alongsite-setup.sh && bash /tmp/alongsite-setup.sh
 ```
 
-脚本创建 `alongsite-deploy` 用户、部署目录及独立 Nginx 站点，生成专用部署密钥，使用本机 SSH 校验该用户确实能写入部署目录，并验证 HTTP 本机访问。该用户没有 sudo 权限，公钥禁用端口转发和交互式终端；安装后的服务由 systemd 管理。脚本不会更改已有 SSH 配置，不会启用 UFW；如 UFW 已启用，只添加 HTTP 80 的允许规则。
+脚本创建 `alongsite-deploy` 用户、部署目录及独立 Nginx 站点，生成专用部署密钥，使用本机 SSH 校验该用户确实能写入部署目录，并验证 HTTP 本机访问。该用户没有 sudo 权限，公钥禁用端口转发和交互式终端；安装后的服务由 systemd 管理。脚本不会更改已有 SSH 配置，不会启用 UFW；如 UFW 已启用，只添加 TCP 8081 的允许规则。
 
-看到 `SETUP_OK` 后，在腾讯云轻量服务器的防火墙中确认 HTTP 80 已放行，再用浏览器打开 `http://42.193.226.154/`。此时应看到“预览环境已准备好”，表示 Web 服务已工作；真正博客会在首次 Actions 发布后出现。
+看到 `SETUP_OK` 后，在腾讯云轻量服务器的防火墙中确认 TCP 8081 已放行，再用浏览器打开 `http://42.193.226.154:8081/`。此时应看到“预览环境已准备好”，表示 Web 服务已工作；真正博客会在首次 Actions 发布后出现。
 
 首次接入还需在 GitHub 页面配置两个 Secrets。下面命令的输出只复制到 GitHub，不发送到聊天，也不提交到仓库：
 
@@ -115,3 +115,22 @@ install -d -o root -g root -m 755 /run/sshd && bash /tmp/alongsite-setup.sh
 ```
 
 初始化脚本会复用此前创建的部署用户和密钥，继续后续步骤；无需重装系统或重新生成密钥。
+
+
+## 已初始化服务器：将 AlongSite 从 80 迁移到 8081
+
+在原来的 root 网页终端执行：
+
+```bash
+curl -fL --retry 2 --connect-timeout 15 --max-time 120 https://raw.githubusercontent.com/Blooming-LHL/AlongSite/main/scripts/set-preview-port.sh -o /tmp/alongsite-port.sh && bash /tmp/alongsite-port.sh 8081
+```
+
+迁移脚本仅调整 AlongSite 的 Nginx 站点，检查目标端口是否被占用，备份原配置，通过 `nginx -t` 后重载，并验证本机 HTTP。失败时恢复原配置。它不重新安装软件、不重新创建部署用户、不重新生成密钥，也不改变 SSH 的 22 端口。
+
+然后完成：
+
+1. 在腾讯云轻量服务器防火墙添加允许 **TCP 8081** 的规则。脚本会在 UFW 已启用时补充该端口规则，不会开启原先未启用的 UFW。保留其他项目与 SSH 的规则。
+2. 将 GitHub Actions Variable `PERSONAL_PREVIEW_URL` 设置为 `http://42.193.226.154:8081/`，再手动运行一次部署。`PERSONAL_SERVER_PORT` 仍为 `22`（SSH 端口）。
+3. 用浏览器访问 `http://42.193.226.154:8081/`。AlongSite 不再监听 80，已有其他 Nginx 默认站点或项目不作更改。
+
+当前服务仍通过 IP 访问，端口用于区分同一服务器的不同项目；后续接入域名后可以再使用不同子域名。

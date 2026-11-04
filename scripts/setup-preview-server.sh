@@ -3,6 +3,8 @@
 # Creates only the AlongSite site and deployment account; never prints the private key.
 set -euo pipefail
 public_ip=${1:-42.193.226.154}
+http_port=${2:-8081}
+[[ "$http_port" =~ ^[0-9]{4,5}$ ]] && (( 10#$http_port >= 1024 && 10#$http_port <= 65535 )) || { echo 'Expected an HTTP port between 1024 and 65535' >&2; exit 2; }
 [[ "$public_ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || { echo 'Expected a public IPv4 address' >&2; exit 2; }
 [[ $EUID -eq 0 ]] || { echo 'Run this script as root in the server web console.' >&2; exit 1; }
 . /etc/os-release
@@ -19,9 +21,9 @@ if [[ -e "$root" && ! -f "$state/managed-user" ]]; then
   echo 'The deployment directory already exists; inspect it before setup.' >&2; exit 1
 fi
 # Avoid installing a competing HTTP server over an unrelated service.
-if ss -H -ltnp 'sport = :80' | grep -q .; then
-  if ! ss -H -ltnp 'sport = :80' | grep -q '"nginx"'; then
-    echo 'Port 80 is occupied by another service; no changes made.' >&2; exit 1
+if ss -H -ltnp "sport = :$http_port" | grep -q .; then
+  if ! ss -H -ltnp "sport = :$http_port" | grep -q '"nginx"'; then
+    echo "Port $http_port is occupied by another service; no changes made." >&2; exit 1
   fi
 fi
 export DEBIAN_FRONTEND=noninteractive
@@ -75,7 +77,7 @@ trap 'rm -f "$candidate"' EXIT
 cat > "$candidate" <<NGINX
 # Managed by AlongSite setup-preview-server.sh
 server {
-    listen 80;
+    listen $http_port;
     server_name $public_ip;
     root /srv/alongsite-preview/current;
     index index.html;
@@ -89,7 +91,7 @@ server {
 }
 NGINX
 if [[ -e "$conf" ]] && ! cmp -s "$candidate" "$conf"; then
-  echo 'A different AlongSite Nginx configuration already exists; it was not overwritten.' >&2; exit 1
+  echo 'A different AlongSite Nginx configuration exists; use scripts/set-preview-port.sh to change its port.' >&2; exit 1
 fi
 install -m 644 "$candidate" "$conf"
 if [[ -e "$site" || -L "$site" ]]; then
@@ -102,10 +104,10 @@ systemctl enable nginx
 systemctl start nginx
 systemctl reload nginx
 if command -v ufw >/dev/null 2>&1 && LC_ALL=C ufw status | grep -q '^Status: active'; then
-  ufw allow 80/tcp comment 'AlongSite HTTP preview'
+  ufw allow "$http_port/tcp" comment 'AlongSite HTTP preview'
 fi
-curl --fail --silent --show-error --max-time 10 -H "Host: $public_ip" http://127.0.0.1/ -o /dev/null
-printf '\nSETUP_OK\nPreview: http://%s/\nDeploy user: %s\n' "$public_ip" "$user"
+curl --fail --silent --show-error --max-time 10 -H "Host: $public_ip" "http://127.0.0.1:$http_port/" -o /dev/null
+printf '\nSETUP_OK\nPreview: http://%s:%s/\nDeploy user: %s\n' "$public_ip" "$http_port" "$user"
 printf 'Private key saved at: %s/github-actions-key (do not send its contents to chat)\n' "$state"
 printf 'Known hosts saved at: %s/github-known-hosts.txt\n' "$state"
-printf 'Next: add GitHub Actions Secrets and Variables, and allow TCP 80 in the Tencent Cloud firewall.\n'
+printf 'Next: add GitHub Actions Secrets and Variables, and allow TCP %s in the Tencent Cloud firewall.\n' "$http_port"
