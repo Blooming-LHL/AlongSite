@@ -80,3 +80,25 @@ PERSONAL_PREVIEW_ENABLED=true
 ```
 
 最后一项仅在服务器站点、目录、公钥和 GitHub Secrets 都准备好后启用。当前没有向服务器执行任何命令，也没有设置任何凭据。
+
+
+## Ubuntu 24.04 的初始化脚本
+
+已根据本次服务器确认的信息（Ubuntu 24.04、root 网页终端、80 端口空闲）提供 `scripts/setup-preview-server.sh`。在服务器网页终端执行，不在工作电脑执行：
+
+```bash
+curl -fL --retry 2 --connect-timeout 15 --max-time 120 https://raw.githubusercontent.com/Blooming-LHL/AlongSite/main/scripts/setup-preview-server.sh -o /tmp/alongsite-setup.sh && bash /tmp/alongsite-setup.sh
+```
+
+脚本创建 `alongsite-deploy` 用户、部署目录及独立 Nginx 站点，生成专用部署密钥，使用本机 SSH 校验该用户确实能写入部署目录，并验证 HTTP 本机访问。该用户没有 sudo 权限，公钥禁用端口转发和交互式终端；安装后的服务由 systemd 管理。脚本不会更改已有 SSH 配置，不会启用 UFW；如 UFW 已启用，只添加 HTTP 80 的允许规则。
+
+看到 `SETUP_OK` 后，在腾讯云轻量服务器的防火墙中确认 HTTP 80 已放行，再用浏览器打开 `http://42.193.226.154/`。此时应看到“预览环境已准备好”，表示 Web 服务已工作；真正博客会在首次 Actions 发布后出现。
+
+首次接入还需在 GitHub 页面配置两个 Secrets。下面命令的输出只复制到 GitHub，不发送到聊天，也不提交到仓库：
+
+- `PERSONAL_SERVER_SSH_KEY`：在服务器网页终端运行 `cat /root/.alongsite-preview-setup/github-actions-key`，复制完整私钥（含 BEGIN/END 行）至对应 Secret。
+- `PERSONAL_SERVER_KNOWN_HOSTS`：在服务器网页终端运行 `cat /root/.alongsite-preview-setup/github-known-hosts.txt`，复制至对应 Secret。
+
+本次用户名使用 `PERSONAL_SERVER_USER=alongsite-deploy`；其他 Variables 按上表设置。填写完成后启用 `PERSONAL_PREVIEW_ENABLED=true`，在 Actions 手动运行首次部署。
+
+专用私钥保存在服务器 root 专属目录（目录 700、私钥 600）与 GitHub Secret 中；初始化脚本本身不会打印其内容。以后重复运行不会重新生成已存在的密钥，也不会将已发布网站替换回初始化页面。
