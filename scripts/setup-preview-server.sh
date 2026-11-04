@@ -48,6 +48,9 @@ if ! grep -Fqx -- "$public_line" "$authorized"; then
 fi
 chown "$user:$user" "$authorized"
 chmod 600 "$authorized"
+# A package upgrade or socket-activated SSH service may leave this runtime directory absent.
+# sshd validates it even for configuration inspection; creating it does not restart SSH.
+install -d -o root -g root -m 755 /run/sshd
 host_key=$(sshd -T | awk '$1 == "hostkey" && /ed25519/ && !found {print $2 ".pub"; found=1}')
 [[ -n "$host_key" && -r "$host_key" ]] || { echo 'No configured Ed25519 SSH host public key found.' >&2; exit 1; }
 awk -v host="$public_ip" '{print host " " $1 " " $2}' "$host_key" > "$state/github-known-hosts.txt"

@@ -102,3 +102,16 @@ curl -fL --retry 2 --connect-timeout 15 --max-time 120 https://raw.githubusercon
 本次用户名使用 `PERSONAL_SERVER_USER=alongsite-deploy`；其他 Variables 按上表设置。填写完成后启用 `PERSONAL_PREVIEW_ENABLED=true`，在 Actions 手动运行首次部署。
 
 专用私钥保存在服务器 root 专属目录（目录 700、私钥 600）与 GitHub Secret 中；初始化脚本本身不会打印其内容。以后重复运行不会重新生成已存在的密钥，也不会将已发布网站替换回初始化页面。
+
+
+### 初始化提示 Missing privilege separation directory
+
+如果安装依赖成功后停在 `Missing privilege separation directory: /run/sshd`，说明 SSH 的运行目录缺失，失败点是 `sshd -T` 配置检查。新版脚本会在检查前补建 root 所有、权限为 755 的 `/run/sshd`；这不会重启 SSH 或改变已有 SSH 配置。
+
+已下载旧版脚本的服务器也可以在原来的 root 网页终端执行：
+
+```bash
+install -d -o root -g root -m 755 /run/sshd && bash /tmp/alongsite-setup.sh
+```
+
+初始化脚本会复用此前创建的部署用户和密钥，继续后续步骤；无需重装系统或重新生成密钥。
