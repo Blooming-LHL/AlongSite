@@ -14,6 +14,7 @@
     <div class="profile-summary">
       <p class="profile-intro">{{ $profile.profile_intro | default $profile.intro }}</p>
       {{ with $profile.profile_detail }}<p class="profile-intro profile-intro-detail">{{ . }}</p>{{ end }}
+      {{ with site.Params.github }}<div class="profile-contact" data-pagefind-ignore><span>{{ $ui.contact }}</span><a href="{{ . }}" rel="me">GitHub <span aria-hidden="true">↗</span></a></div>{{ end }}
       <a class="profile-experience-link" href="#experience" data-pagefind-ignore>{{ $ui.experience_title }} <span aria-hidden="true">↓</span></a>
     </div>
   </section>

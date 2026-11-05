@@ -33,7 +33,7 @@ test('root English and Chinese profiles have reciprocal native links and accurat
     assert.match(html,/hreflang="x-default" href="https:\/\/alongsite\.netlify\.app\/"/);
     assert.match(html,/href="\/" lang="en" hreflang="en"/);
     assert.match(html,/href="\/cn\/about" lang="zh-CN" hreflang="zh-CN"/);
-    assert.doesNotMatch(html,/entry-choice|mailto:|1458169154|github\.com|download|href="#contact"|href="#cv"|href="#projects"|href="#skills"/);
+    assert.doesNotMatch(html,/entry-choice|mailto:|1458169154|download|href="#contact"|href="#cv"|href="#projects"|href="#skills"/);
     const header=html.match(/<header class="p-header"[\s\S]*?<\/header>/)[0];
     assert.equal((header.match(/<a /g)||[]).length,4); // Identity, blog, two language links.
     assert.doesNotMatch(header,/>About</);
@@ -60,6 +60,7 @@ test('profile shows concise work and education, no research or detailed internsh
   assert.match(en,/May — Sep 2025/);
   assert.match(en,/Database Products Department/);
   assert.match(zh,/数据库产品部/);
+  for (const html of [zh,en]) assert.match(html, /href="https:\/\/github\.com\/Blooming-LHL" rel="me">GitHub/);
   for (const html of [zh,en]) {
     assert.doesNotMatch(html,/resume-bullets|profile-research|research-count|CCF A|Patents|专利|ReAct|KWOK|Popularity Award|profile-blog-card|profile-index/);
     assert.equal((html.match(/href="\/blog\/"/g)||[]).length,1);
