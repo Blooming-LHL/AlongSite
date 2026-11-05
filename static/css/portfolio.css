@@ -30,7 +30,7 @@
 .profile-intro { max-width:53ch; font-size:16px; color:#635c74; line-height:1.95; }
 .profile-experience-link { display:inline-flex; align-items:center; gap:23px; margin-top:24px; padding:8px 0; font-size:11px; font-weight:600; color:var(--accent); }
 .profile-photo { grid-column:2; grid-row:1 / 3; width:280px; aspect-ratio:4/5; margin:0; border:1px solid #e8e5ed; border-radius:18px; background:#eeedf1; overflow:hidden; }
-.profile-photo > img { display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
+.profile-photo > img { display:block; width:100%; height:100%; object-fit:contain; object-position:center; background:#fff; }
 .profile-photo-placeholder { display:flex; width:100%; height:100%; align-items:end; padding:21px; background:linear-gradient(145deg,#efedf2,#e9e7ed); }
 .profile-photo-placeholder > span { color:#aaa2b5; font-size:9px; letter-spacing:.16em; }
 .profile-section { border-top:1px solid #e8e4ee; padding:33px 0 40px; }
@@ -109,3 +109,40 @@
 }
 @media (max-width:350px) { .p-header { gap:8px; } .p-wordmark { font-size:21px; } .p-nav .profile-blog-button { padding-inline:10px; gap:8px; } .profile-language a { padding-inline:5px; } }
 @media (prefers-reduced-motion:reduce) { .profile-blog-button,.profile-language a { transition:none; } }
+
+/* Comfortable reading sizes across both languages; avoid shrinking copy on phones. */
+.portfolio-page { font-weight:450; }
+.p-nav { font-size:14px; }
+.profile-language { font-size:13px; }
+.profile-kicker,.profile-eyebrow { font-size:12px; font-weight:650; }
+.profile-role { font-weight:550; }
+.profile-affiliation { font-size:16px; color:#51485f; }
+.profile-intro,.profile-interest-copy { max-width:58ch; font-size:18px; line-height:1.8; font-weight:450; color:#484052; }
+.profile-intro-detail { margin-top:18px !important; }
+.profile-experience-link { font-size:14px; }
+.resume-period,.resume-period > span { font-size:14px; color:#62586e; }
+.resume-row h3 { font-size:19px; font-weight:650; }
+.resume-organization { font-size:16px; color:#625077; }
+.resume-organization > span { color:#62586e; }
+.resume-description { font-size:16px; color:#554c62; line-height:1.85; }
+.profile-reserved h2 { font-size:20px; font-weight:550; color:#62586e; }
+.profile-section-heading h2 { font-size:28px; font-weight:650; }
+.profile-interests .profile-section-heading { margin-bottom:0; }
+.profile-interest-copy { margin-top:20px; }
+.p-footer { font-size:13px; color:#62586e; }
+@media (max-width:800px) {
+  .profile-hero { gap:24px 30px; }
+  .profile-intro,.profile-interest-copy { font-size:17px; }
+}
+@media (max-width:600px) {
+  .p-header { gap:8px; }
+  .p-nav { font-size:12px; }
+  .profile-language { font-size:12px; }
+  .p-nav .profile-blog-button { padding-inline:10px; gap:8px; }
+  .profile-language a { padding-inline:5px; }
+  .profile-affiliation { font-size:15px; }
+  .profile-section-heading h2 { font-size:25px; }
+  .resume-row h3 { font-size:18px; }
+  .resume-organization,.resume-description { font-size:15px; }
+  .p-footer { font-size:12px; }
+}

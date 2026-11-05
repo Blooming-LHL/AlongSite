@@ -2,7 +2,8 @@
 # OPPO start date is author-confirmed (2026.07); no responsibilities have been supplied.
 zh:
   name: "梁恒龙"
-  profile_intro: "我的技术背景包括 LLM 应用、多智能体系统与后端工程。"
+  profile_intro: "我是一名 AI 工程师，关注 LLM 应用、机器学习与后端开发。我希望将智能算法与实际软件系统连接起来，让模型能力服务于具体的问题。"
+  profile_detail: "我的技术背景涉及多智能体系统与后端工程。在工程实践中，我重视系统的可靠性与可维护性，也关注人们如何理解、学习和使用技术，希望在技术实现与使用体验之间做出更好的设计决策。"
   role: "AI Engineer"
   specialization: "Applied AI Engineering"
   stage: "OPPO · 企业 AI 部"
@@ -118,7 +119,8 @@ zh:
   signature: "持续发疯ing"
 en:
   name: "Henglong Liang"
-  profile_intro: "My background spans LLM applications, multi-agent systems, and backend engineering."
+  profile_intro: "I’m an AI engineer focused on LLM applications, machine learning, and backend development. I aim to connect intelligent algorithms with practical software systems, turning model capabilities into useful solutions."
+  profile_detail: "My background includes multi-agent systems and backend engineering. I care about reliability and maintainability, as well as how people understand, learn, and interact with technology—bringing a user-centered perspective to engineering decisions."
   role: "AI Engineer"
   specialization: "Applied AI Engineering"
   stage: "OPPO · Enterprise AI"

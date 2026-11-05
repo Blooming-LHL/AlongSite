@@ -63,8 +63,9 @@ test('profile shows concise work and education, no research or detailed internsh
   for (const html of [zh,en]) {
     assert.doesNotMatch(html,/resume-bullets|profile-research|research-count|CCF A|Patents|专利|ReAct|KWOK|Popularity Award|profile-blog-card|profile-index/);
     assert.equal((html.match(/href="\/blog\/"/g)||[]).length,1);
-    assert.match(html,/class="profile-photo-placeholder" role="img" aria-label=/);
-    assert.doesNotMatch(html,/<img/);
+    assert.match(html,/<img src="\/images\/portrait\.jpg" alt=/);
+    assert.doesNotMatch(html,/profile-photo-placeholder/);
+    assert.match(html,/id="interests"/);
   }
   assert.match(en,/id="profile-heading">Henglong Liang/);
   assert.match(zh,/id="profile-heading">梁恒龙/);
