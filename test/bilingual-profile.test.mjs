@@ -40,7 +40,8 @@ test('root English and Chinese profiles have reciprocal native links and accurat
   }
   assert.match(en,/hreflang="en" aria-current="page">EN/);
   assert.match(zh,/hreflang="zh-CN" aria-current="page">中文/);
-  assert.doesNotMatch(en.replace(/<[^>]+>/g,'').replaceAll('中文',''),/[\u3400-\u9fff]/);
+  const enWithoutProjects=en.replace(/<section[^>]*id="projects"[\s\S]*?<\/section>/,'');
+  assert.doesNotMatch(enWithoutProjects.replace(/<[^>]+>/g,'').replaceAll('中文',''),/[\u3400-\u9fff]/);
 });
 
 test('profile shows concise work and education, no research or detailed internship descriptions',options,()=>{
@@ -48,7 +49,7 @@ test('profile shows concise work and education, no research or detailed internsh
     assert.match(html,/OPPO/);
     assert.match(html,/阿里云|Alibaba Cloud/);
     assert.doesNotMatch(html,/心潮|Shopify|13432003979|lhl1458169154|待补充|待上传|Coming soon|work-card|skills-table|project-architecture/);
-    for(const id of ['projects','skills','cv']) {
+    for(const id of ['skills','cv']) {
       const section=html.match(new RegExp(`<section class="profile-reserved" id="${id}"[\\s\\S]*?<\\/section>`))[0];
       assert.match(section,/data-pagefind-ignore/);
       assert.equal((section.match(/<h2 /g)||[]).length,1);

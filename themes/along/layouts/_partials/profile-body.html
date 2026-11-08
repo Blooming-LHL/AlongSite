@@ -1,5 +1,6 @@
 {{ $context := partial "profile-context.html" . }}
 {{ $profile := $context.profile }}{{ $ui := $context.ui }}
+{{ $projects := where (where site.RegularPages "Section" "projects") "Params.featured" true }}
 <article class="profile-content" data-pagefind-body>
   <section class="profile-hero" id="overview" aria-labelledby="profile-heading">
     <div class="profile-identity">
@@ -30,5 +31,11 @@
     <header class="profile-section-heading"><p class="profile-eyebrow">03 / INTERESTS</p><h2 id="interests-heading">{{ $ui.interests_title }}</h2></header>
     {{ with $profile.interests }}<div class="profile-interest-copy">{{ . | markdownify }}</div>{{ end }}
   </section>
-  {{ range $id := slice "projects" "skills" "cv" }}<section class="profile-reserved" id="{{ $id }}" aria-labelledby="{{ $id }}-heading" data-pagefind-ignore><h2 id="{{ $id }}-heading">{{ index $ui.reserved $id }}</h2></section>{{ end }}
+  <section class="{{ if $projects }}profile-section profile-projects{{ else }}profile-reserved{{ end }}" id="projects" aria-labelledby="projects-heading" data-pagefind-ignore>
+    {{ if $projects }}
+    <header class="profile-section-heading"><p class="profile-eyebrow">04 / SELECTED WORK</p><h2 id="projects-heading">{{ $ui.reserved.projects }}</h2></header>
+    <div class="project-list">{{ range $projects.ByWeight }}{{ partial "project-card.html" . }}{{ end }}</div>
+    {{ else }}<h2 id="projects-heading">{{ $ui.reserved.projects }}</h2>{{ end }}
+  </section>
+  {{ range $id := slice "skills" "cv" }}<section class="profile-reserved" id="{{ $id }}" aria-labelledby="{{ $id }}-heading" data-pagefind-ignore><h2 id="{{ $id }}-heading">{{ index $ui.reserved $id }}</h2></section>{{ end }}
 </article>
