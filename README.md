@@ -22,33 +22,60 @@
 
 ## 快速开始
 
-项目使用 Node.js `22.17.0` 和 Hugo Extended `0.161.1`（Hugo 已在 `0.166.0+extended` 验证）。先安装依赖：
+项目使用 Node.js `22.17.0` 和 Hugo Extended `0.161.1`（Hugo 已在 `0.166.0+extended` 验证）。启动前请确保这两个工具已安装。
+
+### 日常开发预览
+
+在终端进入项目根目录并启动：
 
 ```bash
-npm ci
+cd /Users/lhl/AlongSite
+npm ci       # 首次启动或依赖更新后执行，日常启动可跳过
+npm run dev
 ```
 
-在仓库根目录启动本地站点：
+上面的目录是当前 Mac 的项目路径；在 Windows 或其他设备上，请改成该设备的仓库路径。如果已经在 IDE 的项目根目录终端中，可以直接运行 `npm run dev`。
+
+默认访问地址：
+
+- 网站入口：<http://localhost:1313/>
+- 中文个人简介：<http://localhost:1313/about/>
+- 英文个人简介：<http://localhost:1313/en/about/>
+- 博客首页：<http://localhost:1313/blog/>
+- 文章列表：<http://localhost:1313/writing/>
+
+以终端实际输出的地址和端口为准。保持终端运行，修改项目内的模板、样式或 Markdown 后，页面会自动刷新；停止服务按 `Ctrl + C`。该命令会包含 Hugo 草稿，仅用于本地开发，不会部署到线上。
+
+如果要预览 Obsidian 中刚修改的公开文章，先同步，再启动：
 
 ```bash
-hugo server -D
+npm run content:sync
+npm run dev
 ```
 
-然后打开 Hugo 输出的本地地址。生成包含 Pagefind 搜索索引的生产构建：
+`content:sync` 会更新公开快照、项目文章、受管图片和发布清单，也会清理已取消公开的受管文件；不是只读检查。开发服务已经运行时，可另开一个项目终端执行同步，无需每次重启。私人笔记的改动不会直接被 Hugo 监听，需要再次同步。
 
-```bash
-npm run build
-```
+### 带站内搜索的完整预览
 
-构建产物位于 `public/`，已被 `.gitignore` 排除。
-
-普通的 `npm run dev` 适合开发 Hugo 页面，但不会生成 Pagefind 索引。需要连同站内搜索一起预览时运行：
+普通 `npm run dev` 不会生成或更新 Pagefind 搜索索引。如果需要测试搜索，改用：
 
 ```bash
 npm run preview:search
 ```
 
-然后访问终端显示的本地地址。该命令会先构建 Hugo，再生成中文搜索索引并启动静态预览服务。
+该命令会先清理并构建 Hugo 页面，再生成中文和英文搜索索引并启动静态预览服务。访问终端显示的本地地址，不要沿用开发服务的端口。
+
+完整预览不是实时开发服务：修改内容或重新同步文章后，按 `Ctrl + C` 停止，再次运行 `npm run preview:search`，使页面和搜索索引一起更新。
+
+### 只生成静态网页
+
+如果只需要构建、不启动预览服务：
+
+```bash
+npm run build
+```
+
+构建产物位于 `public/`（包含 `public/pagefind/` 搜索索引），已被 `.gitignore` 排除。构建会清理旧产物，避免取消公开的文章留下旧 HTML；本地启动、同步和构建都不会自动提交 Git 或部署到 Netlify。
 
 ## 配置与替换
 
