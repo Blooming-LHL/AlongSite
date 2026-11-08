@@ -171,7 +171,7 @@ test('profile has only the header blog link, a valid experience anchor, and empt
       assert.match(html,new RegExp(`id="${id}"`));
       assert.doesNotMatch(html,new RegExp(`href="#${id}"`));
     }
-    assert.match(html,/profile-photo-placeholder/);
+    assert.match(html,/<img src="\/images\/portrait\.jpg"/);
     assert.doesNotMatch(html,/mailto:|download|contact-section|work-card|skills-table|article-shell|article-toc|article\.js/);
   }
 });

@@ -39,7 +39,7 @@ sitemap:
 params:
   author: "ALong"
   avatar: "/images/IMG_5943.JPG"
-  profile_photo: "" # 个人简介照片；填写 /images/portrait.jpg 等真实资源路径
+  profile_photo: "/images/portrait.jpg" # 个人简介照片；填写 /images/portrait.jpg 等真实资源路径
   signature: "持续发疯ing"
   status:
     emoji: "🧋"

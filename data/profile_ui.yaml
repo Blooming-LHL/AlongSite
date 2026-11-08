@@ -59,6 +59,7 @@ zh:
     cv: 简历
   photo_placeholder: 梁恒龙的个人照片预留区域
   photo_caption: 个人照片
+  interests_title: 研究兴趣
 en:
   lang: en
   locale: en_US
@@ -122,3 +123,4 @@ en:
     cv: Résumé
   photo_placeholder: Reserved space for a portrait of Henglong Liang
   photo_caption: PORTRAIT
+  interests_title: Interests

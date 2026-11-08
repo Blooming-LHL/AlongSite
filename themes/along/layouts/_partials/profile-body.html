@@ -13,7 +13,9 @@
     </figure>
     <div class="profile-summary">
       <p class="profile-intro">{{ $profile.profile_intro | default $profile.intro }}</p>
+      {{ with $profile.profile_detail }}<p class="profile-intro profile-intro-detail">{{ . }}</p>{{ end }}
       <a class="profile-experience-link" href="#experience" data-pagefind-ignore>{{ $ui.experience_title }} <span aria-hidden="true">↓</span></a>
+      {{ with site.Params.github }}<div class="profile-contact" data-pagefind-ignore><span>{{ $ui.contact }}</span><a href="{{ . }}" rel="me">GitHub <span aria-hidden="true">↗</span></a></div>{{ end }}
     </div>
   </section>
   <section class="profile-section" id="experience" aria-labelledby="experience-heading">
@@ -23,6 +25,10 @@
   <section class="profile-section" id="education" aria-labelledby="education-heading">
     <header class="profile-section-heading"><p class="profile-eyebrow">02 / EDUCATION</p><h2 id="education-heading">{{ $ui.education_title }}</h2></header>
     {{ range $profile.education }}<div class="resume-row"><div class="resume-period">{{ .period }}</div><div><h3>{{ .title }}</h3><p class="resume-organization">{{ .organization }}</p><p class="resume-description">{{ .description }}</p></div></div>{{ end }}
+  </section>
+  <section class="profile-section profile-interests" id="interests" aria-labelledby="interests-heading"{{ if not $profile.interests }} data-pagefind-ignore{{ end }}>
+    <header class="profile-section-heading"><p class="profile-eyebrow">03 / INTERESTS</p><h2 id="interests-heading">{{ $ui.interests_title }}</h2></header>
+    {{ with $profile.interests }}<div class="profile-interest-copy">{{ . | markdownify }}</div>{{ end }}
   </section>
   {{ range $id := slice "projects" "skills" "cv" }}<section class="profile-reserved" id="{{ $id }}" aria-labelledby="{{ $id }}-heading" data-pagefind-ignore><h2 id="{{ $id }}-heading">{{ index $ui.reserved $id }}</h2></section>{{ end }}
 </article>

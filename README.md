@@ -235,3 +235,12 @@ hugo.yaml          # Hugo 配置
 2. 检查 `content/writing/` 和 `content/projects/`，确认只包含你准备公开的真实内容。
 3. 将 `static/images/og-default.svg` 换成自己的 1200×630 PNG/JPEG 分享图（兼容更多社交平台），同步修改 `params.defaultImage`，并检查图片中不含隐私信息。
 4. 执行 `npm test && npm run build`，确认发布安全用例和 Hugo 构建均通过。
+
+### 简介照片、介绍与研究兴趣
+
+- 当前照片为用户此前提供的简历内同一证件照，提取 JPEG 原图保存至 `static/images/portrait.jpg`，不作人像生成或修饰。使用 contain 保留照片完整内容；可随时替换成更高分辨率原图。
+- 双语 `profile_intro` 和 `profile_detail` 管理两段简介。未将参考文案中的心理学训练写为个人资历。
+- `data/portfolio.yaml` 的各语言可增加 `interests` Markdown 字段填写研究兴趣；未填写时仅显示中英文标题，不输出虚构内容或空白占位文案。
+- 简介正文桌面 18px、手机 17px，经历说明 15–16px，并提高字重与文字对比度。
+
+首屏采用文字主导的编辑式布局：桌面照片宽 300px，保留原照片 6:7 比例、靠近姓名顶部对齐，不随介绍增多而放大；平板宽 220px，手机上下排列。简介底部仅提供 GitHub 联系入口。

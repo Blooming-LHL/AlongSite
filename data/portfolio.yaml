@@ -2,7 +2,8 @@
 # OPPO start date is author-confirmed (2026.07); no responsibilities have been supplied.
 zh:
   name: "梁恒龙"
-  profile_intro: "我的技术背景包括 LLM 应用、多智能体系统与后端工程。"
+  profile_intro: "我是一名 AI 工程师，关注 LLM 应用、机器学习与后端开发。我希望将智能算法与实际软件系统连接起来，让模型能力服务于具体的问题。"
+  profile_detail: "我的技术背景涉及多智能体系统与后端工程。在工程实践中，我重视系统的可靠性与可维护性，也关注人们如何理解、学习和使用技术，希望在技术实现与使用体验之间做出更好的设计决策。"
   role: "AI Engineer"
   specialization: "Applied AI Engineering"
   stage: "OPPO · 企业 AI 部"
@@ -29,11 +30,11 @@ zh:
         - "智能体项目获“数智未来·瑶池数据库 AI 创新挑战赛”大众人气奖及优秀作品称号。"
   education:
     - period: "2023.09 — 2026.06"
-      title: "研究生 · 计算机技术"
+      title: "硕士 · 计算机技术"
       organization: "中山大学"
       description: "研究生阶段排名前 10%；通过保研入学。2023 年校级二等奖学金，2024、2025 年校级一等奖学金。"
     - period: "2019.09 — 2023.06"
-      title: "本科 · 信息工程"
+      title: "学士 · 信息工程"
       organization: "华南理工大学"
       description: "本科阶段排名前 10%；2022 年华为“智能基座”项目奖学金；2021 年美国大学生数学建模竞赛二等奖。曾任班长、百步梯社团视觉设计部主管。"
   research:
@@ -118,7 +119,8 @@ zh:
   signature: "持续发疯ing"
 en:
   name: "Henglong Liang"
-  profile_intro: "My background spans LLM applications, multi-agent systems, and backend engineering."
+  profile_intro: "I’m an AI engineer focused on LLM applications, machine learning, and backend development. I aim to connect intelligent algorithms with practical software systems, turning model capabilities into useful solutions."
+  profile_detail: "My background includes multi-agent systems and backend engineering. I care about reliability and maintainability, as well as how people understand, learn, and interact with technology—bringing a user-centered perspective to engineering decisions."
   role: "AI Engineer"
   specialization: "Applied AI Engineering"
   stage: "OPPO · Enterprise AI"
@@ -145,11 +147,11 @@ en:
         - "The agent project received the Popularity Award and Outstanding Project recognition in the Yaochi Database AI Innovation Challenge."
   education:
     - period: "Sep 2023 — Jun 2026"
-      title: "Graduate Studies · Computer Technology"
+      title: "Master’s Degree · Computer Technology"
       organization: "Sun Yat-sen University"
       description: "Top 10% in graduate studies; admitted through the postgraduate recommendation pathway. University second-class scholarship in 2023 and first-class scholarships in 2024 and 2025."
     - period: "Sep 2019 — Jun 2023"
-      title: "Undergraduate Studies · Information Engineering"
+      title: "Bachelor’s Degree · Information Engineering"
       organization: "South China University of Technology"
       description: "Top 10% in undergraduate studies. Huawei Intelligent Base scholarship (2022); Second Prize in the Mathematical Contest in Modeling (2021). Served as class representative and led the Baibuti student organization's visual design team."
   research:
