@@ -34,7 +34,7 @@
   <section class="{{ if $projects }}profile-section profile-projects{{ else }}profile-reserved{{ end }}" id="projects" aria-labelledby="projects-heading" data-pagefind-ignore>
     {{ if $projects }}
     <header class="profile-section-heading"><p class="profile-eyebrow">04 / SELECTED WORK</p><h2 id="projects-heading">{{ $ui.reserved.projects }}</h2></header>
-    <div class="project-list">{{ range $projects.ByWeight }}{{ partial "project-card.html" . }}{{ end }}</div>
+    <div class="profile-project-list">{{ range $index, $project := $projects.ByWeight }}{{ partial "profile-project-card.html" (dict "project" $project "ui" $ui "index" $index) }}{{ end }}</div>
     {{ else }}<h2 id="projects-heading">{{ $ui.reserved.projects }}</h2>{{ end }}
   </section>
   {{ range $id := slice "skills" "cv" }}<section class="profile-reserved" id="{{ $id }}" aria-labelledby="{{ $id }}-heading" data-pagefind-ignore><h2 id="{{ $id }}-heading">{{ index $ui.reserved $id }}</h2></section>{{ end }}

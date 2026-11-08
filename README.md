@@ -12,7 +12,7 @@
 - `/blog/` 保留每日寄语、文章瀑布流、分类和标签。博客导航中的“个人主页”返回 `/`；原有文章、分类、搜索与 RSS 地址不变。
 - 个人简介首屏以姓名、AI Engineer、当前任职和独立照片区呈现身份；工作与教育以开放排版展示。顶部 My Blog 是简介中唯一的博客入口，左侧目录、首屏重复按钮和正文博客卡片均已移除。
 - OPPO 正式工作与阿里云实习仅输出时间、职位、公司和部门。阿里云部门为“数据库产品部 / Database Products Department”；不再输出具体工作、项目指标或获奖说明，Research 统计也不再渲染。原始工作、研究与项目资料仍保存在数据文件中，教育信息不作无关改写。`data/portfolio.yaml` 管理双语资料，`data/profile_ui.yaml` 管理界面文案。
-- Selected Work 从 `content/projects/` 读取 `featured: true` 的项目，按 `weight` 从小到大展示名称、简介、技术栈、状态与可选 GitHub 链接；点击名称进入项目详情。没有精选项目时只保留低高度标题。Technical Skills、Résumé 继续留白，不输出技能列表或下载按钮；简介现有 GitHub 联系入口与博客联系方式保持不变。
+- Selected Work 从 `content/projects/` 读取 `featured: true` 的项目，按 `weight` 从小到大展示名称、简介、技术栈、状态与可选 GitHub、在线演示链接。没有精选项目时只保留低高度标题。Technical Skills、Résumé 继续留白，不输出技能列表或下载按钮；简介现有 GitHub 联系入口与博客联系方式保持不变。
 - 项目和技能原始数据仍在仓库，未删除。`static/cv/` PDF 及 `/cv/zh/`、`/cv/en/` 打印页也仍可通过原地址访问；本轮只暂停简介入口，没有撤回这些公开资源。
 - 首页和中文简介共用 `themes/along/layouts/_partials/profile-body.html`。`static/css/portfolio.css` 采用近白背景、克制的页头玻璃、明确的紫色博客按钮；桌面使用文字与照片两列，手机使用单列。阅读面板、瀑布流算法和文章交互保持原样。
 - `hugo.yaml` 的 `params.profile_photo` 管理真实照片路径，例如 `/images/portrait.jpg`（文件放在 `static/images/portrait.jpg`）。未填写时显示中性 4:5 预留框，没有伪造人像或破损图片。接入照片后使用固定宽高、`object-fit: cover` 与有意义的替代文本。`profile_intro` 是简介专用短文案，不覆盖 CV 使用的原始 `intro`。
@@ -111,7 +111,7 @@ weight: 10
 这里写项目背景、功能和进展。
 ```
 
-保存后项目会出现在独立的 Projects 列表中。设置 `featured: true` 后，也会出现在英文个人主页 `/` 和中文简介 `/cn/about` 的 Selected Work / 精选项目区域，`weight` 数字越小越靠前；不需要再往 `data/portfolio.yaml` 重复添加项目。标题与简介沿用 Markdown 中的原文，切换简介语言不会自动翻译项目内容。`status`、`stack` 和 `github` 可按需填写。
+保存后项目会出现在独立的 Projects 列表中。设置 `featured: true` 后，也会出现在英文个人主页 `/` 和中文简介 `/cn/about` 的 Selected Work / 精选项目区域，`weight` 数字越小越靠前；不需要再往 `data/portfolio.yaml` 重复添加项目。精选项目使用单列宽卡片，展示序号、年份、可选状态、项目简介、技术栈以及可选 GitHub、在线演示入口；卡片随内容自然增高，不强制等高。独立 Projects 列表保留原有布局。标题与简介沿用 Markdown 中的原文，切换简介语言不会自动翻译项目内容。`status`、`stack`、`github` 和 `demo` 可按需填写，例如 `demo: "https://example.com/"`；不填写时不会显示演示链接。
 
 设为 `featured: false` 或移除该字段，只会从个人简介的精选项目中移除，项目详情和 Projects 列表仍然公开。可运行 `npm run dev` 本地预览。
 

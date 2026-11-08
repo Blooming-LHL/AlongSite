@@ -23,6 +23,7 @@ zh:
   cv: CV / 简历
   projects_title: 让实践说话
   projects_subtitle: Projects
+  project_demo: 在线演示
   contribution: 个人贡献
   outcome: 项目成果
   architecture: 查看架构与设计决策
@@ -85,6 +86,7 @@ en:
   cv: CV / Résumé
   projects_title: Engineering in practice
   projects_subtitle: ""
+  project_demo: Live Demo
   contribution: My contribution
   outcome: Outcome
   architecture: Architecture & design decisions

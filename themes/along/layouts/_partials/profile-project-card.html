@@ -1,0 +1,21 @@
+{{ $project := .project }}{{ $ui := .ui }}
+<article class="profile-project-card">
+  <span class="profile-project-number" aria-hidden="true">{{ printf "%02d" (add .index 1) }}</span>
+  <div class="profile-project-content">
+    <header class="profile-project-header">
+      {{ if or (not $project.Date.IsZero) $project.Params.status }}<div class="profile-project-meta">
+        {{ if not $project.Date.IsZero }}<time datetime="{{ $project.Date.Format "2006-01-02" }}">{{ $project.Date.Format "2006" }}</time>{{ end }}
+        {{ with $project.Params.status }}<span class="profile-project-status">{{ . }}</span>{{ end }}
+      </div>{{ end }}
+      <h3>{{ $project.Title }}</h3>
+    </header>
+    {{ with $project.Description }}<p class="profile-project-description">{{ . }}</p>{{ end }}
+    {{ if or $project.Params.stack $project.Params.github $project.Params.demo }}<footer class="profile-project-footer">
+      {{ with $project.Params.stack }}<ul class="profile-project-stack">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
+      {{ if or $project.Params.github $project.Params.demo }}<div class="profile-project-actions">
+        {{ with $project.Params.github }}<a class="profile-project-github" href="{{ . }}" rel="noopener noreferrer" aria-label="GitHub — {{ $project.Title }}">GitHub <span aria-hidden="true">↗</span></a>{{ end }}
+        {{ with $project.Params.demo }}<a class="profile-project-demo" href="{{ . }}" rel="noopener noreferrer" aria-label="{{ $ui.project_demo }} — {{ $project.Title }}">{{ $ui.project_demo }} <span aria-hidden="true">↗</span></a>{{ end }}
+      </div>{{ end }}
+    </footer>{{ end }}
+  </div>
+</article>
